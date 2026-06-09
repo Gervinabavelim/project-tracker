@@ -47,25 +47,37 @@ export default function CreateProjectModal({ open, onClose, onCreated }: Props) 
   };
 
   const inputClass =
-    "w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500";
-  const labelClass = "block text-xs text-zinc-400 mb-1";
+    "w-full bg-zinc-900/80 border border-zinc-700/40 rounded-xl px-3 py-2.5 text-[13px] text-zinc-200 focus:outline-none focus:border-zinc-500/60 transition-colors placeholder-zinc-600";
+  const labelClass = "block text-[11px] font-medium text-zinc-500 mb-1.5";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center modal-backdrop bg-black/50">
       <form
         onSubmit={handleSubmit}
-        className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4"
+        className="bg-zinc-900/95 backdrop-blur-2xl border border-zinc-700/40 rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4 shadow-2xl shadow-black/50"
       >
-        <h2 className="text-lg font-semibold text-zinc-100">New Project</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-zinc-100">New Project</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-6 h-6 rounded-lg hover:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
         <div>
-          <label className={labelClass}>Name *</label>
+          <label className={labelClass}>Name</label>
           <input
             className={inputClass}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             placeholder="Project name"
+            autoFocus
           />
         </div>
 
@@ -117,12 +129,12 @@ export default function CreateProjectModal({ open, onClose, onCreated }: Props) 
             />
           </div>
           <div>
-            <label className={labelClass}>Tags (comma-separated)</label>
+            <label className={labelClass}>Tags</label>
             <input
               className={inputClass}
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              placeholder="e.g. client work, TKFS"
+              placeholder="comma-separated"
             />
           </div>
         </div>
@@ -131,17 +143,17 @@ export default function CreateProjectModal({ open, onClose, onCreated }: Props) 
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="px-4 py-2 text-[13px] text-zinc-500 hover:text-zinc-300 transition-colors rounded-lg hover:bg-zinc-800/50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={!name || saving}
-            className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-50
-            text-white rounded-lg transition-colors"
+            className="px-5 py-2 text-[13px] font-medium bg-blue-600/90 hover:bg-blue-500 disabled:opacity-40
+            text-white rounded-xl transition-all shadow-sm"
           >
-            {saving ? "Creating…" : "Create Project"}
+            {saving ? "Creating..." : "Create"}
           </button>
         </div>
       </form>

@@ -13,23 +13,26 @@ export default function SummaryStrip({ projects }: { projects: Project[] }) {
   }).length;
 
   const stats = [
-    { label: "Total", value: total, color: "text-zinc-100" },
-    { label: "In Progress", value: inProgress, color: "text-emerald-400" },
-    { label: "Blocked", value: blocked, color: "text-red-400" },
-    { label: "Due ≤ 7 days", value: dueSoon, color: "text-amber-400" },
+    { label: "Total", value: total, color: "text-zinc-100", dot: "bg-zinc-400" },
+    { label: "In Progress", value: inProgress, color: "text-emerald-400", dot: "bg-emerald-400" },
+    { label: "Blocked", value: blocked, color: "text-red-400", dot: "bg-red-400" },
+    { label: "Due Soon", value: dueSoon, color: "text-amber-400", dot: "bg-amber-400" },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
       {stats.map((s) => (
         <div
           key={s.label}
-          className="bg-zinc-800/60 border border-zinc-700/50 rounded-xl px-4 py-3 text-center"
+          className="stat-card bg-zinc-800/30 border border-zinc-700/25 rounded-xl px-4 py-3"
         >
-          <div className={`text-2xl font-bold font-mono ${s.color}`}>
+          <div className="flex items-center gap-2 mb-1">
+            <div className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+            <span className="text-[11px] text-zinc-500">{s.label}</span>
+          </div>
+          <div className={`text-xl font-bold font-mono ${s.color}`}>
             {s.value}
           </div>
-          <div className="text-xs text-zinc-500 mt-0.5">{s.label}</div>
         </div>
       ))}
     </div>

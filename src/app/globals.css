@@ -11,7 +11,7 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — macOS style */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -21,6 +21,9 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #3f3f46;
   border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
 }
 
 /* Date input dark mode fix */
@@ -51,4 +54,74 @@ input[type="range"]::-webkit-slider-thumb {
   --tw-prose-bold: #e4e4e7;
   --tw-prose-links: #60a5fa;
   --tw-prose-code: #e4e4e7;
+}
+
+/* TopBar pill glow on hover */
+.topbar-pill {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* TopBar dropdown entrance */
+.topbar-dropdown {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card hover lift */
+.project-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.project-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Stat card subtle pulse on hover */
+.stat-card {
+  transition: all 0.2s ease;
+}
+.stat-card:hover {
+  background: rgba(39, 39, 42, 0.8);
+  border-color: rgba(63, 63, 70, 0.6);
+}
+
+/* Glass panel */
+.glass-panel {
+  background: rgba(24, 24, 27, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Smooth fade-in for page content */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Staggered children fade-in */
+.stagger-children > * {
+  animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 40ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 280ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 320ms; }
+
+/* Modal backdrop */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
