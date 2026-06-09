@@ -1,0 +1,3 @@
+# Make GitHub detect this repo as JavaScript instead of TypeScript
+*.ts linguist-language=JavaScript
+*.tsx linguist-language=JavaScript

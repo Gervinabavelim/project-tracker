@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project Tracker
 
-## Getting Started
+A local-first project tracker & reminder dashboard. No cloud, no accounts, no vendor lock-in — you own everything.
 
-First, run the development server:
+## Stack
+
+- **Next.js** (App Router) + TypeScript + Tailwind CSS
+- **SQLite** via Prisma (single file database, no cloud)
+- **react-markdown** for notes rendering
+
+## Setup
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Create the database and apply schema
+npx prisma db push
+
+# 3. Generate the Prisma client
+npx prisma generate
+
+# 4. Seed example projects (optional)
+npm run db:seed
+
+# 5. Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Folder Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+project-tracker/
+├── prisma/
+│   ├── schema.prisma      # Data model (Project, Task, ActivityLog)
+│   ├── seed.ts             # Seed script with example projects
+│   └── dev.db              # SQLite database file (gitignored)
+├── src/
+│   ├── app/
+│   │   ├── api/projects/   # REST API routes (CRUD)
+│   │   ├── project/[id]/   # Project detail page
+│   │   ├── layout.tsx      # Root layout
+│   │   ├── page.tsx        # Dashboard (home page)
+│   │   └── globals.css     # Global styles
+│   ├── components/
+│   │   ├── CreateProjectModal.tsx
+│   │   ├── Filters.tsx
+│   │   ├── ProjectCard.tsx
+│   │   ├── RemindersPanel.tsx
+│   │   └── SummaryStrip.tsx
+│   ├── generated/prisma/   # Auto-generated Prisma client
+│   └── lib/
+│       ├── constants.ts    # Types, status/priority config
+│       ├── db.ts           # Prisma client singleton
+│       └── helpers.ts      # Date/tag/progress utilities
+├── .gitattributes          # GitHub language override
+├── prisma.config.ts        # Prisma v7 configuration
+└── package.json
+```
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- **Dashboard** — Card grid with status badges, progress bars, priority indicators
+- **Filters & Sort** — Filter by status, priority, tag; sort by due date, priority, or last updated
+- **Summary Strip** — At-a-glance counts: total, in progress, blocked, due soon
+- **Reminders Panel** — Overdue (red) and due-within-7-days (amber) warnings
+- **Browser Notifications** — Notification API alerts for items due today
+- **Project Detail** — Edit all fields, manage tasks, markdown notes with preview
+- **Activity Log** — Tracks status changes, task completions, and progress updates
+- **Auto-calc Progress** — Suggested % from completed tasks (manually overridable)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run db:seed` | Seed database with example projects |
+| `npm run db:reset` | Reset database and re-seed |
 
-## Deploy on Vercel
+## Data
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Your data lives in `prisma/dev.db` — a single SQLite file. Back it up, copy it, inspect it with any SQLite tool. No cloud involved.
