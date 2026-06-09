@@ -122,6 +122,27 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* Modal backdrop */
 .modal-backdrop {
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Tray popover — transparent for macOS vibrancy */
+.tray-root {
+  background: transparent !important;
+}
+.tray-root * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.tray-root input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Drag region for Electron tray window */
+.drag-region {
+  -webkit-app-region: drag;
+}
+.drag-region * {
+  -webkit-app-region: no-drag;
 }
