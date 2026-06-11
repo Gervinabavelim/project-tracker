@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: "Lato", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: #09090b;
-  color: #fafafa;
+  background: #ffffff;
+  color: #000000;
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* Custom scrollbar — macOS style */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -19,22 +19,17 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #e0e0e0;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
-}
-
-/* Date input dark mode fix */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
+  background: #cccccc;
 }
 
 /* Range slider */
 input[type="range"] {
   -webkit-appearance: none;
-  background: #27272a;
+  background: #f0f0f0;
   border-radius: 9999px;
   height: 6px;
 }
@@ -43,20 +38,20 @@ input[type="range"]::-webkit-slider-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #000000;
   cursor: pointer;
 }
 
 /* Markdown prose overrides */
 .prose {
-  --tw-prose-headings: #e4e4e7;
-  --tw-prose-body: #a1a1aa;
-  --tw-prose-bold: #e4e4e7;
-  --tw-prose-links: #60a5fa;
-  --tw-prose-code: #e4e4e7;
+  --tw-prose-headings: #000000;
+  --tw-prose-body: #888888;
+  --tw-prose-bold: #000000;
+  --tw-prose-links: #3b82f6;
+  --tw-prose-code: #000000;
 }
 
-/* TopBar pill glow on hover */
+/* TopBar pill */
 .topbar-pill {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -74,20 +69,13 @@ input[type="range"]::-webkit-slider-thumb {
   transform: translateY(-2px);
 }
 
-/* Stat card subtle pulse on hover */
+/* Stat card subtle hover */
 .stat-card {
   transition: all 0.2s ease;
 }
 .stat-card:hover {
-  background: rgba(39, 39, 42, 0.8);
-  border-color: rgba(63, 63, 70, 0.6);
-}
-
-/* Glass panel */
-.glass-panel {
-  background: rgba(24, 24, 27, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #f5f5f5;
+  border-color: #e0e0e0;
 }
 
 /* Smooth fade-in for page content */
@@ -120,13 +108,22 @@ input[type="range"]::-webkit-slider-thumb {
 .stagger-children > *:nth-child(8) { animation-delay: 280ms; }
 .stagger-children > *:nth-child(9) { animation-delay: 320ms; }
 
+/* Toast animation */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-toast-in {
+  animation: toast-in 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 /* Modal backdrop */
 .modal-backdrop {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
-/* Tray popover — transparent for macOS vibrancy */
+/* Tray popover */
 .tray-root {
   background: transparent !important;
 }

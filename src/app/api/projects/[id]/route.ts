@@ -1,35 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import {
+  withErrorHandler,
+  validateProjectFields,
+  pickProjectFields,
+  badRequest,
+  notFound,
+} from "@/lib/api-utils";
 
-// GET /api/projects/:id
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const project = await prisma.project.findUnique({
-    where: { id },
-    include: {
-      tasks: { orderBy: { order: "asc" } },
-      activities: { orderBy: { createdAt: "desc" } },
-    },
-  });
-  if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(project);
-}
+export const GET = withErrorHandler(
+  async (
+    _req: NextRequest,
+    { params }: { params: Promise<Record<string, string>> }
+  ) => {
+    const { id } = await params;
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: {
+        tasks: { orderBy: { order: "asc" } },
+        activities: { orderBy: { createdAt: "desc" } },
+      },
+    });
+    if (!project) return notFound("Project not found");
+    return NextResponse.json(project);
+  }
+);
 
-// PATCH /api/projects/:id
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const body = await req.json();
+export const PATCH = withErrorHandler(
+  async (
+    req: NextRequest,
+    { params }: { params: Promise<Record<string, string>> }
+  ) => {
+    const { id } = await params;
+    const body = await req.json();
 
-  // Track status changes in activity log
-  if (body.status) {
+    const invalid = validateProjectFields(body);
+    if (invalid) return badRequest(invalid);
+
     const current = await prisma.project.findUnique({ where: { id } });
-    if (current && current.status !== body.status) {
+    if (!current) return notFound("Project not found");
+
+    if (body.status && current.status !== body.status) {
       await prisma.activityLog.create({
         data: {
           projectId: id,
@@ -37,12 +48,8 @@ export async function PATCH(
         },
       });
     }
-  }
 
-  // Track progress changes
-  if (body.progress !== undefined) {
-    const current = await prisma.project.findUnique({ where: { id } });
-    if (current && current.progress !== body.progress) {
+    if (body.progress !== undefined && current.progress !== body.progress) {
       await prisma.activityLog.create({
         data: {
           projectId: id,
@@ -50,30 +57,33 @@ export async function PATCH(
         },
       });
     }
+
+    const data = pickProjectFields(body);
+    if (body.dueDate !== undefined) {
+      data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
+    }
+
+    const project = await prisma.project.update({
+      where: { id },
+      data,
+      include: {
+        tasks: { orderBy: { order: "asc" } },
+        activities: { orderBy: { createdAt: "desc" } },
+      },
+    });
+    return NextResponse.json(project);
   }
+);
 
-  const data: Record<string, unknown> = { ...body };
-  if (body.dueDate !== undefined) {
-    data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
+export const DELETE = withErrorHandler(
+  async (
+    _req: NextRequest,
+    { params }: { params: Promise<Record<string, string>> }
+  ) => {
+    const { id } = await params;
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return notFound("Project not found");
+    await prisma.project.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
   }
-
-  const project = await prisma.project.update({
-    where: { id },
-    data,
-    include: {
-      tasks: { orderBy: { order: "asc" } },
-      activities: { orderBy: { createdAt: "desc" } },
-    },
-  });
-  return NextResponse.json(project);
-}
-
-// DELETE /api/projects/:id
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  await prisma.project.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
-}
+);

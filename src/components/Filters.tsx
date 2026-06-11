@@ -20,7 +20,7 @@ export default function Filters({
   onChange,
 }: FiltersProps) {
   const selectClass =
-    "bg-zinc-800/50 border border-zinc-700/30 text-zinc-400 text-[12px] rounded-lg px-3 py-1.5 focus:outline-none focus:border-zinc-600/50 hover:border-zinc-600/40 hover:text-zinc-300 transition-all cursor-pointer appearance-none";
+    "bg-[#fafafa] border border-[#e0e0e0] text-[#888888] text-[12px] tracking-[-0.3px] rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#999999] hover:border-[#999999] hover:text-black transition-all cursor-pointer appearance-none";
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-5">

@@ -13,7 +13,7 @@ const STATUS_DOT: Record<string, string> = {
   "In Progress": "bg-emerald-400",
   Blocked: "bg-red-400",
   Testing: "bg-purple-400",
-  Done: "bg-zinc-500",
+  Done: "bg-neutral-400",
 };
 
 export default function ProjectCard({ project }: { project: Project }) {
@@ -26,25 +26,25 @@ export default function ProjectCard({ project }: { project: Project }) {
   return (
     <Link href={`/project/${project.id}`}>
       <div
-        className={`project-card bg-zinc-800/40 border rounded-2xl p-4 cursor-pointer group
-        hover:bg-zinc-800/70 hover:shadow-lg hover:shadow-black/20 ${
+        className={`project-card bg-[#fafafa] border rounded-lg p-4 cursor-pointer group
+        hover:border-[#999999] ${
           isOverdue
-            ? "border-red-500/30 hover:border-red-500/50"
+            ? "border-red-200"
             : isDueSoon
-              ? "border-amber-500/25 hover:border-amber-500/40"
-              : "border-zinc-700/30 hover:border-zinc-600/50"
+              ? "border-amber-200"
+              : "border-[#f0f0f0]"
         }`}
       >
         {/* Top row: status dot + name */}
         <div className="flex items-start gap-2.5 mb-3">
           <div
-            className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${STATUS_DOT[project.status] ?? "bg-zinc-500"}`}
+            className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${STATUS_DOT[project.status] ?? "bg-neutral-400"}`}
           />
           <div className="flex-1 min-w-0">
-            <h3 className="text-[14px] font-semibold text-zinc-200 group-hover:text-white truncate leading-tight">
+            <h3 className="text-[14px] font-bold tracking-[-0.3px] text-black group-hover:text-black truncate leading-tight">
               {project.name}
             </h3>
-            <span className="text-[11px] text-zinc-500 mt-0.5 block">
+            <span className="text-[11px] text-[#aaaaaa] mt-0.5 block">
               {project.status}
             </span>
           </div>
@@ -59,10 +59,10 @@ export default function ProjectCard({ project }: { project: Project }) {
             <span
               className={
                 isOverdue
-                  ? "text-red-400 font-medium"
+                  ? "text-red-500 font-bold"
                   : isDueSoon
-                    ? "text-amber-400"
-                    : "text-zinc-600"
+                    ? "text-amber-500"
+                    : "text-[#aaaaaa]"
               }
             >
               {isOverdue
@@ -76,18 +76,18 @@ export default function ProjectCard({ project }: { project: Project }) {
 
         {/* Progress */}
         <div className="mb-2">
-          <div className="flex justify-between text-[11px] text-zinc-600 mb-1.5">
+          <div className="flex justify-between text-[11px] text-[#aaaaaa] mb-1.5">
             <span>Progress</span>
             <span className="font-mono">{project.progress}%</span>
           </div>
-          <div className="h-1 bg-zinc-700/50 rounded-full overflow-hidden">
+          <div className="h-1 bg-[#f0f0f0] rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${
                 project.progress === 100
-                  ? "bg-emerald-500"
+                  ? "bg-emerald-400"
                   : project.progress >= 60
-                    ? "bg-blue-500"
-                    : "bg-amber-500/80"
+                    ? "bg-[#3b82f6]"
+                    : "bg-amber-400"
               }`}
               style={{ width: `${project.progress}%` }}
             />
@@ -97,8 +97,8 @@ export default function ProjectCard({ project }: { project: Project }) {
         {/* Bottom row: tasks + tags */}
         <div className="flex items-center justify-between mt-3">
           {totalTasks > 0 ? (
-            <span className="text-[11px] text-zinc-600">
-              <span className="font-mono text-zinc-400">{tasksLeft}</span>/{totalTasks} tasks left
+            <span className="text-[11px] text-[#aaaaaa]">
+              <span className="font-mono text-[#888888]">{tasksLeft}</span>/{totalTasks} tasks left
             </span>
           ) : (
             <span />
@@ -112,13 +112,13 @@ export default function ProjectCard({ project }: { project: Project }) {
                 .map((tag) => (
                   <span
                     key={tag.trim()}
-                    className="text-[9px] px-1.5 py-0.5 rounded-md bg-zinc-700/30 text-zinc-500"
+                    className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#f0f0f0] text-[#888888] border border-[#f0f0f0]"
                   >
                     {tag.trim()}
                   </span>
                 ))}
               {project.tags.split(",").length > 2 && (
-                <span className="text-[9px] px-1 py-0.5 text-zinc-600">
+                <span className="text-[9px] px-1 py-0.5 text-[#aaaaaa]">
                   +{project.tags.split(",").length - 2}
                 </span>
               )}

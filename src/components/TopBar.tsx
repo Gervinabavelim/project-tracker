@@ -10,7 +10,7 @@ const STATUS_DOT: Record<string, string> = {
   "In Progress": "bg-emerald-400",
   Blocked: "bg-red-400",
   Testing: "bg-purple-400",
-  Done: "bg-zinc-500",
+  Done: "bg-neutral-400",
 };
 
 export default function TopBar() {
@@ -30,9 +30,13 @@ export default function TopBar() {
   const fetchProjects = useCallback(async () => {
     try {
       const res = await fetch("/api/projects");
-      const data = await res.json();
-      setProjects(data);
-    } catch {}
+      if (res.ok) {
+        const data = await res.json();
+        setProjects(data);
+      }
+    } catch (err) {
+      console.error("Failed to load projects:", err);
+    }
   }, []);
 
   useEffect(() => {
@@ -74,32 +78,25 @@ export default function TopBar() {
         <div
           className={`flex items-center gap-3 px-4 py-2 rounded-full cursor-default select-none transition-all duration-300 topbar-pill ${
             open
-              ? "bg-zinc-900/95 backdrop-blur-2xl border border-zinc-600/60 shadow-2xl shadow-black/40"
-              : "bg-zinc-900/70 backdrop-blur-xl border border-zinc-700/40 shadow-lg shadow-black/20 hover:bg-zinc-900/90 hover:border-zinc-600/50"
+              ? "bg-white border border-[#d0d0d0] shadow-lg"
+              : "bg-[#fafafa] border border-[#e0e0e0] shadow-sm hover:border-[#999999] hover:shadow-md"
           }`}
         >
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-sm">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-              <rect x="1" y="1" width="6" height="6" rx="1.5" fill="white" opacity="0.9" />
-              <rect x="9" y="1" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
-              <rect x="1" y="9" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
-              <rect x="9" y="9" width="6" height="6" rx="1.5" fill="white" opacity="0.4" />
-            </svg>
-          </div>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] animate-pulse" />
 
           <div className="flex items-center gap-2">
             {currentProject && (
               <div
-                className={`w-2 h-2 rounded-full ${STATUS_DOT[currentProject.status] ?? "bg-zinc-500"}`}
+                className={`w-2 h-2 rounded-full ${STATUS_DOT[currentProject.status] ?? "bg-neutral-400"}`}
               />
             )}
-            <span className="text-[13px] font-medium text-zinc-200 max-w-[200px] truncate">
-              {currentProject ? currentProject.name : "All Projects"}
+            <span className="text-[13px] font-bold tracking-[-0.3px] text-black max-w-[200px] truncate">
+              {currentProject ? currentProject.name : "all projects"}
             </span>
           </div>
 
           <svg
-            className={`w-3 h-3 text-zinc-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            className={`w-3 h-3 text-[#aaaaaa] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -117,12 +114,12 @@ export default function TopBar() {
               : "opacity-0 scale-[0.97] -translate-y-1 pointer-events-none"
           }`}
         >
-          <div className="bg-zinc-900/95 backdrop-blur-2xl border border-zinc-700/50 rounded-2xl shadow-2xl shadow-black/50">
+          <div className="bg-white border border-[#e0e0e0] rounded-2xl shadow-lg">
             {/* Search */}
             <div className="p-2.5">
               <div className="relative">
                 <svg
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#bbbbbb]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -140,7 +137,7 @@ export default function TopBar() {
                   placeholder="Search projects..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-zinc-800/70 border border-zinc-700/40 rounded-xl pl-8 pr-3 py-2 text-[13px] text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600/60 transition-colors"
+                  className="w-full bg-[#fafafa] border border-[#e0e0e0] rounded-xl pl-8 pr-3 py-2 text-[13px] tracking-[-0.3px] text-black placeholder-[#bbbbbb] focus:outline-none focus:border-[#999999] transition-colors"
                 />
               </div>
             </div>
@@ -152,16 +149,16 @@ export default function TopBar() {
                 onClick={() => setOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
                   !currentProjectId
-                    ? "bg-blue-500/10 text-blue-400"
-                    : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
+                    ? "bg-[#fafafa] text-black"
+                    : "text-[#888888] hover:bg-[#fafafa] hover:text-black"
                 }`}
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                 </svg>
-                <span className="text-[13px] font-medium">Dashboard</span>
+                <span className="text-[13px] font-bold tracking-[-0.3px]">Dashboard</span>
                 {!currentProjectId && (
-                  <svg className="w-3.5 h-3.5 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg className="w-3.5 h-3.5 ml-auto text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 )}
@@ -169,11 +166,11 @@ export default function TopBar() {
             </div>
 
             {/* Divider */}
-            <div className="mx-3 my-1.5 h-px bg-zinc-800/80" />
+            <div className="mx-3 my-1.5 h-px bg-[#f0f0f0]" />
 
             {/* Label */}
             <div className="px-4 py-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
+              <span className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#aaaaaa]">
                 Projects
               </span>
             </div>
@@ -181,7 +178,7 @@ export default function TopBar() {
             {/* Project list */}
             <div className="max-h-[280px] overflow-y-auto px-1.5 pb-1">
               {filtered.length === 0 ? (
-                <div className="px-3 py-8 text-center text-[13px] text-zinc-600">
+                <div className="px-3 py-8 text-center text-[13px] text-[#aaaaaa]">
                   {projects.length === 0
                     ? "No projects yet"
                     : "No matches found"}
@@ -189,7 +186,7 @@ export default function TopBar() {
               ) : (
                 filtered.map((p) => {
                   const isActive = p.id === currentProjectId;
-                  const dot = STATUS_DOT[p.status] ?? "bg-zinc-500";
+                  const dot = STATUS_DOT[p.status] ?? "bg-neutral-400";
                   const tasksLeft = p.tasks?.filter((t) => !t.completed).length ?? 0;
                   const totalTasks = p.tasks?.length ?? 0;
 
@@ -200,37 +197,37 @@ export default function TopBar() {
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group ${
                         isActive
-                          ? "bg-blue-500/10"
-                          : "hover:bg-zinc-800/60"
+                          ? "bg-[#fafafa]"
+                          : "hover:bg-[#fafafa]"
                       }`}
                     >
                       <div className={`w-2 h-2 rounded-full shrink-0 ${dot}`} />
                       <div className="flex-1 min-w-0">
                         <div
-                          className={`text-[13px] font-medium truncate ${
-                            isActive ? "text-blue-400" : "text-zinc-200"
+                          className={`text-[13px] font-bold tracking-[-0.3px] truncate ${
+                            isActive ? "text-black" : "text-[#888888] group-hover:text-black"
                           }`}
                         >
                           {p.name}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <div className="h-1 w-16 bg-zinc-800 rounded-full overflow-hidden">
+                          <div className="h-1 w-16 bg-[#f0f0f0] rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full transition-all ${
                                 p.progress === 100
-                                  ? "bg-emerald-500"
+                                  ? "bg-emerald-400"
                                   : p.progress >= 60
-                                    ? "bg-blue-500"
-                                    : "bg-amber-500/80"
+                                    ? "bg-[#3b82f6]"
+                                    : "bg-amber-400"
                               }`}
                               style={{ width: `${p.progress}%` }}
                             />
                           </div>
-                          <span className="text-[10px] text-zinc-600 font-mono">
+                          <span className="text-[10px] text-[#aaaaaa] font-mono">
                             {p.progress}%
                           </span>
                           {totalTasks > 0 && (
-                            <span className="text-[10px] text-zinc-600">
+                            <span className="text-[10px] text-[#aaaaaa]">
                               {tasksLeft}/{totalTasks}
                             </span>
                           )}
@@ -238,7 +235,7 @@ export default function TopBar() {
                       </div>
                       {isActive && (
                         <svg
-                          className="w-3.5 h-3.5 shrink-0 text-blue-400"
+                          className="w-3.5 h-3.5 shrink-0 text-black"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -258,13 +255,13 @@ export default function TopBar() {
             </div>
 
             {/* New Project */}
-            <div className="border-t border-zinc-800/60 p-1.5">
+            <div className="border-t border-[#f0f0f0] p-1.5">
               <button
                 onClick={() => {
                   setOpen(false);
                   router.push("/?new=1");
                 }}
-                className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 rounded-xl transition-colors"
+                className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] text-[#888888] hover:text-black hover:bg-[#fafafa] rounded-xl transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

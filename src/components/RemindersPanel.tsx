@@ -32,9 +32,9 @@ export default function RemindersPanel({ projects }: { projects: Project[] }) {
   if (reminders.length === 0) return null;
 
   return (
-    <div className="mb-5 bg-zinc-800/30 border border-zinc-700/25 rounded-xl p-3.5">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mb-2.5 flex items-center gap-2">
-        <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+    <div className="mb-5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg p-3.5">
+      <h2 className="text-[11px] font-bold uppercase tracking-[1.5px] text-[#aaaaaa] mb-2.5 flex items-center gap-2">
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
         Reminders
       </h2>
       <div className="space-y-1.5">
@@ -44,10 +44,10 @@ export default function RemindersPanel({ projects }: { projects: Project[] }) {
             <Link
               key={p.id}
               href={`/project/${p.id}`}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13px] transition-colors ${
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13px] tracking-[-0.3px] transition-colors border ${
                 isOverdue
-                  ? "bg-red-500/8 border border-red-500/20 text-red-400 hover:bg-red-500/15"
-                  : "bg-amber-500/8 border border-amber-500/20 text-amber-400 hover:bg-amber-500/15"
+                  ? "bg-red-50 border-red-200 text-red-500 hover:bg-red-100"
+                  : "bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100"
               }`}
             >
               <span className="truncate">{p.name}</span>

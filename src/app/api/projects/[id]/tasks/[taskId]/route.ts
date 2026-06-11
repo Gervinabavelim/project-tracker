@@ -1,47 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { withErrorHandler, pickTaskFields, notFound } from "@/lib/api-utils";
 
-// PATCH /api/projects/:id/tasks/:taskId
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string; taskId: string }> }
-) {
-  const { id, taskId } = await params;
-  const body = await req.json();
+export const PATCH = withErrorHandler(
+  async (
+    req: NextRequest,
+    { params }: { params: Promise<Record<string, string>> }
+  ) => {
+    const { id, taskId } = await params;
+    const body = await req.json();
 
-  const task = await prisma.task.update({
-    where: { id: taskId },
-    data: body,
-  });
+    const existing = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!existing) return notFound("Task not found");
+    if (existing.projectId !== id) return notFound("Task not found");
 
-  if (body.completed !== undefined) {
-    await prisma.activityLog.create({
-      data: {
-        projectId: id,
-        action: body.completed
-          ? `Task completed: "${task.text}"`
-          : `Task reopened: "${task.text}"`,
-      },
+    const data = pickTaskFields(body);
+
+    const task = await prisma.task.update({
+      where: { id: taskId },
+      data,
     });
+
+    if (body.completed !== undefined) {
+      await prisma.activityLog.create({
+        data: {
+          projectId: id,
+          action: body.completed
+            ? `Task completed: "${task.text}"`
+            : `Task reopened: "${task.text}"`,
+        },
+      });
+    }
+
+    return NextResponse.json(task);
   }
+);
 
-  return NextResponse.json(task);
-}
+export const DELETE = withErrorHandler(
+  async (
+    _req: NextRequest,
+    { params }: { params: Promise<Record<string, string>> }
+  ) => {
+    const { id, taskId } = await params;
 
-// DELETE /api/projects/:id/tasks/:taskId
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string; taskId: string }> }
-) {
-  const { id, taskId } = await params;
-  const task = await prisma.task.findUnique({ where: { id: taskId } });
-  await prisma.task.delete({ where: { id: taskId } });
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) return notFound("Task not found");
+    if (task.projectId !== id) return notFound("Task not found");
 
-  if (task) {
+    await prisma.task.delete({ where: { id: taskId } });
+
     await prisma.activityLog.create({
       data: { projectId: id, action: `Task removed: "${task.text}"` },
     });
-  }
 
-  return NextResponse.json({ ok: true });
-}
+    return NextResponse.json({ ok: true });
+  }
+);

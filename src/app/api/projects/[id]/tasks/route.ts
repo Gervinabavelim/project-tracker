@@ -1,30 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import {
+  withErrorHandler,
+  validateRequired,
+  badRequest,
+  notFound,
+} from "@/lib/api-utils";
 
-// POST /api/projects/:id/tasks — add a task
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const body = await req.json();
+export const POST = withErrorHandler(
+  async (
+    req: NextRequest,
+    { params }: { params: Promise<Record<string, string>> }
+  ) => {
+    const { id } = await params;
+    const body = await req.json();
 
-  const maxOrder = await prisma.task.aggregate({
-    where: { projectId: id },
-    _max: { order: true },
-  });
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (!project) return notFound("Project not found");
 
-  const task = await prisma.task.create({
-    data: {
-      text: body.text,
-      projectId: id,
-      order: (maxOrder._max.order ?? -1) + 1,
-    },
-  });
+    const missing = validateRequired(body, ["text"]);
+    if (missing) return badRequest(missing);
 
-  await prisma.activityLog.create({
-    data: { projectId: id, action: `Task added: "${body.text}"` },
-  });
+    const text = (body.text as string).trim();
 
-  return NextResponse.json(task, { status: 201 });
-}
+    const maxOrder = await prisma.task.aggregate({
+      where: { projectId: id },
+      _max: { order: true },
+    });
+
+    const task = await prisma.task.create({
+      data: {
+        text,
+        projectId: id,
+        order: (maxOrder._max.order ?? -1) + 1,
+      },
+    });
+
+    await prisma.activityLog.create({
+      data: { projectId: id, action: `Task added: "${text}"` },
+    });
+
+    return NextResponse.json(task, { status: 201 });
+  }
+);
