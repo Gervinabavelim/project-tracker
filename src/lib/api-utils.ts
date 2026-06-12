@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
 import { STATUSES, PRIORITIES } from "@/lib/constants";
+import { prisma } from "@/lib/db";
 
 type RouteHandler = (
   req: NextRequest,
@@ -83,6 +84,8 @@ const ALLOWED_PROJECT_FIELDS = new Set([
   "tags",
   "notes",
   "archived",
+  "directory",
+  "lastScannedAt",
 ]);
 
 export function pickProjectFields(
@@ -109,6 +112,41 @@ export function pickTaskFields(
     }
   }
   return result;
+}
+
+export async function syncProjectFromTasks(projectId: string) {
+  const allTasks = await prisma.task.findMany({ where: { projectId } });
+  const completed = allTasks.filter((t) => t.completed).length;
+  const newProgress = allTasks.length > 0 ? Math.round((completed / allTasks.length) * 100) : 0;
+
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project) return;
+
+  let newStatus = project.status;
+  if (newProgress === 100 && allTasks.length > 0) {
+    newStatus = "Done";
+  } else if (newProgress > 0 && project.status === "Planning") {
+    newStatus = "In Progress";
+  } else if (newProgress === 0 && project.status === "Done") {
+    newStatus = "Planning";
+  } else if (newProgress === 0 && project.status === "In Progress") {
+    newStatus = "Planning";
+  }
+
+  const updates: Record<string, unknown> = { progress: newProgress };
+  if (newStatus !== project.status) {
+    updates.status = newStatus;
+    await prisma.activityLog.create({
+      data: { projectId, action: `Status auto-changed from ${project.status} to ${newStatus}` },
+    });
+  }
+  if (newProgress !== project.progress) {
+    await prisma.activityLog.create({
+      data: { projectId, action: `Progress auto-updated to ${newProgress}%` },
+    });
+  }
+
+  await prisma.project.update({ where: { id: projectId }, data: updates });
 }
 
 export function badRequest(message: string) {

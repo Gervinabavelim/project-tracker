@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { withErrorHandler, pickTaskFields, notFound } from "@/lib/api-utils";
+import { withErrorHandler, pickTaskFields, notFound, syncProjectFromTasks } from "@/lib/api-utils";
 
 export const PATCH = withErrorHandler(
   async (
@@ -30,6 +30,7 @@ export const PATCH = withErrorHandler(
             : `Task reopened: "${task.text}"`,
         },
       });
+      await syncProjectFromTasks(id);
     }
 
     return NextResponse.json(task);
@@ -52,6 +53,8 @@ export const DELETE = withErrorHandler(
     await prisma.activityLog.create({
       data: { projectId: id, action: `Task removed: "${task.text}"` },
     });
+
+    await syncProjectFromTasks(id);
 
     return NextResponse.json({ ok: true });
   }

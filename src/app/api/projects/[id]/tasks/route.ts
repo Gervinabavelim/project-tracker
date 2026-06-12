@@ -5,6 +5,7 @@ import {
   validateRequired,
   badRequest,
   notFound,
+  syncProjectFromTasks,
 } from "@/lib/api-utils";
 
 export const POST = withErrorHandler(
@@ -39,6 +40,8 @@ export const POST = withErrorHandler(
     await prisma.activityLog.create({
       data: { projectId: id, action: `Task added: "${text}"` },
     });
+
+    await syncProjectFromTasks(id);
 
     return NextResponse.json(task, { status: 201 });
   }

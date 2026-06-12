@@ -12,7 +12,7 @@ import {
   PRIORITY_COLORS,
   PRIORITY_ICONS,
 } from "@/lib/constants";
-import { formatDate, formatDateTime, suggestedProgress } from "@/lib/helpers";
+import { formatDate, formatDateTime } from "@/lib/helpers";
 import { apiFetch } from "@/lib/fetch-utils";
 import { useToast } from "@/components/Toast";
 
@@ -37,6 +37,7 @@ export default function ProjectDetail() {
   const [newTask, setNewTask] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [directory, setDirectory] = useState("");
 
   const fetchProject = useCallback(async () => {
     try {
@@ -50,6 +51,7 @@ export default function ProjectDetail() {
       setDueDate(data.dueDate ? data.dueDate.split("T")[0] : "");
       setTags(data.tags);
       setNotes(data.notes);
+      setDirectory(data.directory || "");
     } catch (err) {
       const message = (err as Error).message;
       if (message === "Not found" || message === "Project not found") {
@@ -84,7 +86,7 @@ export default function ProjectDetail() {
   };
 
   const handleSave = () => {
-    save({ name, description, status, priority, progress, dueDate: dueDate || null, tags, notes });
+    save({ name, description, status, priority, dueDate: dueDate || null, tags, notes });
   };
 
   const addTask = async () => {
@@ -167,8 +169,6 @@ export default function ProjectDetail() {
       setSaving(false);
     }
   };
-
-  const suggested = project ? suggestedProgress(project.tasks) : 0;
 
   if (loading) {
     return (
@@ -264,6 +264,56 @@ export default function ProjectDetail() {
               />
             </div>
 
+            {/* Linked Folder */}
+            <div>
+              <label className={labelClass}>Linked Folder</label>
+              <div className="flex items-center gap-2">
+                {directory ? (
+                  <>
+                    <div className="flex-1 flex items-center gap-2 bg-[#fafafa] border border-[#e0e0e0] rounded-md px-3 py-2.5">
+                      <svg className="w-4 h-4 text-[#888888] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                      </svg>
+                      <span className="text-[13px] tracking-[-0.3px] text-[#888888] truncate">{directory}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
+                        auto-tracking
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setDirectory(""); save({ directory: "" }); }}
+                      className="text-[11px] text-[#aaaaaa] hover:text-red-400 transition-colors"
+                    >
+                      unlink
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const api = (window as unknown as { electronAPI?: { pickDirectory: () => Promise<string | null> } }).electronAPI;
+                      if (!api?.pickDirectory) {
+                        showToast("Folder linking requires the desktop app");
+                        return;
+                      }
+                      const dir = await api.pickDirectory();
+                      if (dir) {
+                        setDirectory(dir);
+                        save({ directory: dir });
+                      }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2.5 bg-[#fafafa] border border-dashed border-[#d0d0d0] rounded-md
+                    hover:border-[#999999] hover:bg-[#f5f5f5] transition-all text-[13px] tracking-[-0.3px] text-[#888888] hover:text-black"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                    </svg>
+                    Link a folder to auto-track
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className={labelClass}>Status</label>
@@ -309,44 +359,30 @@ export default function ProjectDetail() {
               </div>
             </div>
 
-            {/* Progress */}
+            {/* Progress (auto-synced from tasks) */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className={labelClass}>Progress</label>
-                {project.tasks.length > 0 && suggested !== progress && (
-                  <button
-                    type="button"
-                    onClick={() => setProgress(suggested)}
-                    className="text-[11px] text-[#888888] hover:text-black transition-colors underline underline-offset-2"
-                  >
-                    Auto: {suggested}%
-                  </button>
-                )}
+                <span className="text-[11px] text-[#aaaaaa]">
+                  auto-tracked from tasks
+                </span>
               </div>
               <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={progress}
-                  onChange={(e) => setProgress(Number(e.target.value))}
-                  className="flex-1"
-                />
+                <div className="flex-1 h-2 bg-[#f0f0f0] rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      progress === 100
+                        ? "bg-emerald-400"
+                        : progress >= 60
+                          ? "bg-[#3b82f6]"
+                          : "bg-amber-400"
+                    }`}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
                 <span className="text-[13px] font-mono text-[#888888] w-10 text-right">
                   {progress}%
                 </span>
-              </div>
-              <div className="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden mt-2">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    progress === 100
-                      ? "bg-emerald-400"
-                      : progress >= 60
-                        ? "bg-[#3b82f6]"
-                        : "bg-amber-400"
-                  }`}
-                  style={{ width: `${progress}%` }}
-                />
               </div>
             </div>
 
@@ -467,6 +503,15 @@ export default function ProjectDetail() {
                 <div className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#aaaaaa] mb-1">Updated</div>
                 <div className="text-[13px] tracking-[-0.3px] text-[#888888]">{formatDate(project.updatedAt)}</div>
               </div>
+              {directory && (
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#aaaaaa] mb-1">Tracking</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[12px] tracking-[-0.3px] text-emerald-600">Live</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Activity log */}

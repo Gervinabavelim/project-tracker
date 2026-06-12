@@ -1,7 +1,8 @@
-const { app, BrowserWindow, Tray, nativeImage, ipcMain } = require("electron");
+const { app, BrowserWindow, Tray, nativeImage, ipcMain, dialog } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
 const http = require("http");
+const watcher = require("./watcher");
 
 const isDev = !app.isPackaged;
 const PORT = isDev ? 3000 : 3847;
@@ -13,16 +14,9 @@ let mainWindow = null;
 let serverProcess = null;
 
 function createTrayIcon() {
-  // 22x22 template icon for macOS menu bar (grid pattern)
-  const svgIcon =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">' +
-    '<rect x="3" y="3" width="6" height="6" rx="1.5" fill="black"/>' +
-    '<rect x="13" y="3" width="6" height="6" rx="1.5" fill="black" opacity="0.7"/>' +
-    '<rect x="3" y="13" width="6" height="6" rx="1.5" fill="black" opacity="0.7"/>' +
-    '<rect x="13" y="13" width="6" height="6" rx="1.5" fill="black" opacity="0.5"/>' +
-    "</svg>";
-  const encoded = "data:image/svg+xml," + encodeURIComponent(svgIcon);
-  const icon = nativeImage.createFromDataURL(encoded);
+  const icon = nativeImage.createFromPath(
+    path.join(__dirname, "tray-icon.png")
+  );
   icon.setTemplateImage(true);
   return icon;
 }
@@ -184,6 +178,15 @@ ipcMain.on("open-new-project", () => {
   openMainWindow("/?new=1");
 });
 
+ipcMain.handle("pick-directory", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openDirectory"],
+    message: "Select the project folder to track",
+  });
+  if (result.canceled || result.filePaths.length === 0) return null;
+  return result.filePaths[0];
+});
+
 // App lifecycle
 app.on("ready", async () => {
   if (process.platform === "darwin") {
@@ -203,6 +206,8 @@ app.on("ready", async () => {
   }
 
   createPopover();
+  openMainWindow("/");
+  watcher.start(PORT);
 });
 
 app.on("window-all-closed", (e) => {
@@ -210,6 +215,7 @@ app.on("window-all-closed", (e) => {
 });
 
 app.on("before-quit", () => {
+  watcher.stop();
   if (serverProcess) {
     serverProcess.kill("SIGTERM");
   }

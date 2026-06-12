@@ -18,6 +18,8 @@ model Project {
   tags        String   @default("")         // comma-separated
   notes       String   @default("")         // markdown
   archived    Boolean  @default(false)
+  directory   String   @default("")         // linked folder path
+  lastScannedAt DateTime?                   // last auto-scan timestamp
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

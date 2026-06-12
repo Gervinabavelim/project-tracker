@@ -32,6 +32,8 @@ export type Project = {
   tags: string;
   notes: string;
   archived: boolean;
+  directory: string;
+  lastScannedAt: string | null;
   createdAt: string;
   updatedAt: string;
   tasks: Task[];

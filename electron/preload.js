@@ -5,4 +5,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openDashboard: () => ipcRenderer.send("open-dashboard"),
   openProject: (id) => ipcRenderer.send("open-project", id),
   openNewProject: () => ipcRenderer.send("open-new-project"),
+  pickDirectory: () => ipcRenderer.invoke("pick-directory"),
 });
