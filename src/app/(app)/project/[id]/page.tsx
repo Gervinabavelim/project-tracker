@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -16,14 +17,22 @@ import { formatDate, formatDateTime } from "@/lib/helpers";
 import { apiFetch } from "@/lib/fetch-utils";
 import { useToast } from "@/components/Toast";
 
+type TeamMember = {
+  id: string;
+  userId: string;
+  user: { id: string; name: string; email: string };
+};
+
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { data: session } = useSession();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [togglingTasks, setTogglingTasks] = useState<Set<string>>(new Set());
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const { showToast } = useToast();
 
   const [name, setName] = useState("");
@@ -67,6 +76,13 @@ export default function ProjectDetail() {
   useEffect(() => {
     fetchProject();
   }, [fetchProject]);
+
+  useEffect(() => {
+    fetch("/api/team")
+      .then((r) => r.json())
+      .then((data) => setTeamMembers(data?.members ?? []))
+      .catch(() => {});
+  }, []);
 
   const save = async (patch: Record<string, unknown>) => {
     setSaving(true);
@@ -512,6 +528,21 @@ export default function ProjectDetail() {
                   </div>
                 </div>
               )}
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-[1.5px] text-[#aaaaaa] mb-1">Assigned To</div>
+                <select
+                  className="w-full bg-white border border-[#e0e0e0] rounded-md px-2 py-1.5 text-[12px] text-black focus:outline-none focus:border-[#999] transition-colors"
+                  value={project.assigneeId ?? ""}
+                  onChange={(e) => save({ assigneeId: e.target.value || null })}
+                >
+                  <option value="">Unassigned</option>
+                  {teamMembers.map((m) => (
+                    <option key={m.user.id} value={m.user.id}>
+                      {m.user.name}{m.user.id === (session?.user as { id?: string })?.id ? " (you)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Activity log */}
@@ -526,9 +557,27 @@ export default function ProjectDetail() {
                       key={a.id}
                       className="border-l-2 border-[#e0e0e0] pl-3 py-1"
                     >
-                      <div className="text-[12px] tracking-[-0.3px] text-[#888888]">{a.action}</div>
-                      <div className="text-[10px] text-[#aaaaaa] mt-0.5">
-                        {formatDateTime(a.createdAt)}
+                      <div className="flex items-start gap-2">
+                        {a.user ? (
+                          <div className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-[8px] font-bold shrink-0 mt-0.5">
+                            {a.user.name[0].toUpperCase()}
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full bg-[#e0e0e0] flex items-center justify-center shrink-0 mt-0.5">
+                            <svg className="w-3 h-3 text-[#999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.431.992a7.723 7.723 0 010 .255c-.007.378.138.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[12px] tracking-[-0.3px] text-[#888888]">
+                            {a.user && <span className="font-semibold text-[#666]">{a.user.name} </span>}
+                            {a.action}
+                          </div>
+                          <div className="text-[10px] text-[#aaaaaa] mt-0.5">
+                            {formatDateTime(a.createdAt)}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}

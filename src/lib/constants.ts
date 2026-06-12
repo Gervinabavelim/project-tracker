@@ -36,6 +36,8 @@ export type Project = {
   lastScannedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  assigneeId: string | null;
+  assignee: { id: string; name: string; email: string } | null;
   tasks: Task[];
   activities?: ActivityLog[];
 };
@@ -54,5 +56,7 @@ export type ActivityLog = {
   id: string;
   projectId: string;
   action: string;
+  userId: string | null;
+  user: { id: string; name: string; email: string } | null;
   createdAt: string;
 };

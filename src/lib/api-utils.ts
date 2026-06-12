@@ -86,6 +86,7 @@ const ALLOWED_PROJECT_FIELDS = new Set([
   "archived",
   "directory",
   "lastScannedAt",
+  "assigneeId",
 ]);
 
 export function pickProjectFields(

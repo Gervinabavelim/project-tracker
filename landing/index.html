@@ -244,6 +244,20 @@
       font-size: 13px;
       color: var(--text-tertiary);
     }
+    .install-note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      border-radius: 10px;
+      padding: 10px 18px;
+      display: inline-block;
+      max-width: 480px;
+    }
+    .install-note strong {
+      color: var(--amber);
+    }
 
     /* App Preview */
     .preview {
@@ -653,7 +667,7 @@
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
         <a href="https://github.com/Gervinabavelim/project-tracker">GitHub</a>
-        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.1.0/Project.Tracker-0.1.0-arm64.dmg" class="nav-cta">Download</a>
+        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.0/Project.Tracker-0.2.0-arm64.dmg" class="nav-cta">Download</a>
       </div>
     </div>
   </nav>
@@ -662,9 +676,9 @@
     <div class="container">
       <div class="badge animate-fade-up">Free &amp; Open Source</div>
       <h1 class="animate-fade-up-1">Track your projects<br>automatically</h1>
-      <p class="hero-sub animate-fade-up-2">A macOS menu bar app that watches your project folders and tracks progress from git commits, file changes, and tasks — without you lifting a finger.</p>
+      <p class="hero-sub animate-fade-up-2">A macOS app that watches your project folders and tracks progress from git commits, file changes, and tasks. Built for solo devs and corporate teams alike.</p>
       <div class="cta-group animate-fade-up-3">
-        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.1.0/Project.Tracker-0.1.0-arm64.dmg" class="btn btn-primary">
+        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.0/Project.Tracker-0.2.0-arm64.dmg" class="btn btn-primary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />
@@ -680,6 +694,11 @@
         </a>
       </div>
       <p class="platform-note animate-fade-up-4">macOS 12+ &middot; Apple Silicon &amp; Intel &middot; Free forever</p>
+      <div class="install-note animate-fade-up-4">
+        <strong>First launch:</strong> After dragging to Applications, open Terminal and run:<br>
+        <code style="background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:5px;font-size:12px;margin-top:4px;display:inline-block;">xattr -cr /Applications/Project\ Tracker.app</code><br>
+        Then open the app normally. This is required once for apps outside the App Store.
+      </div>
     </div>
   </section>
 
@@ -803,11 +822,30 @@
         <div class="feature-card">
           <div class="feature-icon fi-blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
             </svg>
           </div>
-          <h3>Private &amp; Offline</h3>
-          <p>Everything runs locally on your Mac. No accounts, no cloud, no telemetry. Your data never leaves your machine.</p>
+          <h3>Teams &amp; Organizations</h3>
+          <p>Create organizations, invite team members, assign roles. Admin, Member, and Viewer access levels built in.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+              <path d="M6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+            </svg>
+          </div>
+          <h3>Audit Log</h3>
+          <p>Full activity trail showing who did what, when. Filter by user or project. Admin-only access for security.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+            </svg>
+          </div>
+          <h3>Project Assignment</h3>
+          <p>Assign projects to team members. "My Projects" view shows your work. See who's working on what at a glance.</p>
         </div>
       </div>
     </div>
@@ -841,8 +879,8 @@
   <section class="bottom-cta" id="download">
     <div class="container">
       <h2>Start tracking your projects</h2>
-      <p>Free, open source, no account needed.</p>
-      <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.1.0/Project.Tracker-0.1.0-arm64.dmg" class="btn btn-primary">
+      <p>Free, open source, built for teams.</p>
+      <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.0/Project.Tracker-0.2.0-arm64.dmg" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
@@ -851,6 +889,9 @@
         Download for macOS
       </a>
       <p class="platform-note">macOS 12+ &middot; Apple Silicon &amp; Intel</p>
+      <div class="install-note">
+        <strong>First launch:</strong> Right-click the app &rarr; Open &rarr; click "Open" in the dialog.
+      </div>
     </div>
   </section>
 

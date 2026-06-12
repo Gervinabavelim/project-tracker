@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Project } from "@/lib/constants";
 import { parseTags } from "@/lib/helpers";
 import { apiFetch } from "@/lib/fetch-utils";
@@ -24,6 +25,7 @@ export default function Dashboard() {
 
 function DashboardInner() {
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -34,6 +36,7 @@ function DashboardInner() {
   const [filterTag, setFilterTag] = useState("");
   const [sort, setSort] = useState("updated");
   const [showArchived, setShowArchived] = useState(false);
+  const [viewMode, setViewMode] = useState<"mine" | "all">("mine");
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -65,8 +68,13 @@ function DashboardInner() {
     return Array.from(set).sort();
   }, [projects]);
 
+  const currentUserId = (session?.user as { id?: string })?.id;
+
   const filtered = useMemo(() => {
     let result = [...projects];
+    if (viewMode === "mine" && currentUserId) {
+      result = result.filter((p) => p.assigneeId === currentUserId);
+    }
     if (filterStatus) result = result.filter((p) => p.status === filterStatus);
     if (filterPriority) result = result.filter((p) => p.priority === filterPriority);
     if (filterTag) result = result.filter((p) => parseTags(p.tags).includes(filterTag));
@@ -85,7 +93,7 @@ function DashboardInner() {
     }
 
     return result;
-  }, [projects, filterStatus, filterPriority, filterTag, sort]);
+  }, [projects, filterStatus, filterPriority, filterTag, sort, viewMode, currentUserId]);
 
   const handleFilterChange = (key: string, value: string) => {
     if (key === "status") setFilterStatus(value);
@@ -108,6 +116,30 @@ function DashboardInner() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {!showArchived && (
+              <div className="flex rounded-md border border-[#e0e0e0] overflow-hidden">
+                <button
+                  onClick={() => setViewMode("mine")}
+                  className={`px-3 py-2 text-[12px] font-semibold transition-all ${
+                    viewMode === "mine"
+                      ? "bg-black text-white"
+                      : "bg-[#fafafa] text-[#888] hover:text-black"
+                  }`}
+                >
+                  My Projects
+                </button>
+                <button
+                  onClick={() => setViewMode("all")}
+                  className={`px-3 py-2 text-[12px] font-semibold transition-all border-l border-[#e0e0e0] ${
+                    viewMode === "all"
+                      ? "bg-black text-white"
+                      : "bg-[#fafafa] text-[#888] hover:text-black"
+                  }`}
+                >
+                  All
+                </button>
+              </div>
+            )}
             <button
               onClick={() => { setShowArchived(!showArchived); setLoading(true); }}
               className={`px-3 py-2.5 text-[13px] tracking-[-0.3px] rounded-md transition-all border ${

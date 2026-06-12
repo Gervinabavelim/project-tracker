@@ -24,7 +24,11 @@ export const GET = withErrorHandler(
       where: { id, orgId: ctx.orgId },
       include: {
         tasks: { orderBy: { order: "asc" } },
-        activities: { orderBy: { createdAt: "desc" } },
+        assignee: { select: { id: true, name: true, email: true } },
+        activities: {
+          orderBy: { createdAt: "desc" },
+          include: { user: { select: { id: true, name: true, email: true } } },
+        },
       },
     });
     if (!project) return notFound("Project not found");
@@ -80,7 +84,11 @@ export const PATCH = withErrorHandler(
       data,
       include: {
         tasks: { orderBy: { order: "asc" } },
-        activities: { orderBy: { createdAt: "desc" } },
+        assignee: { select: { id: true, name: true, email: true } },
+        activities: {
+          orderBy: { createdAt: "desc" },
+          include: { user: { select: { id: true, name: true, email: true } } },
+        },
       },
     });
     return NextResponse.json(project);

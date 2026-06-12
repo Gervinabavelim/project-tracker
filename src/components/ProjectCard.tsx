@@ -94,15 +94,22 @@ export default function ProjectCard({ project }: { project: Project }) {
           </div>
         </div>
 
-        {/* Bottom row: tasks + tags */}
+        {/* Bottom row: assignee + tasks + tags */}
         <div className="flex items-center justify-between mt-3">
-          {totalTasks > 0 ? (
-            <span className="text-[11px] text-[#aaaaaa]">
-              <span className="font-mono text-[#888888]">{tasksLeft}</span>/{totalTasks} tasks left
-            </span>
-          ) : (
-            <span />
-          )}
+          <div className="flex items-center gap-2">
+            {project.assignee && (
+              <div className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-[8px] font-bold shrink-0" title={project.assignee.name}>
+                {project.assignee.name[0].toUpperCase()}
+              </div>
+            )}
+            {totalTasks > 0 ? (
+              <span className="text-[11px] text-[#aaaaaa]">
+                <span className="font-mono text-[#888888]">{tasksLeft}</span>/{totalTasks} tasks left
+              </span>
+            ) : (
+              <span />
+            )}
+          </div>
 
           {project.tags && (
             <div className="flex gap-1 justify-end">

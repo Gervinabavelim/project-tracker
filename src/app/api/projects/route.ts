@@ -15,7 +15,10 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
   const showArchived = req.nextUrl.searchParams.get("archived") === "true";
   const projects = await prisma.project.findMany({
     where: { orgId: ctx.orgId, archived: showArchived },
-    include: { tasks: { orderBy: { order: "asc" } } },
+    include: {
+      tasks: { orderBy: { order: "asc" } },
+      assignee: { select: { id: true, name: true, email: true } },
+    },
     orderBy: { updatedAt: "desc" },
   });
   return NextResponse.json(projects);
