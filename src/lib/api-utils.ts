@@ -149,10 +149,20 @@ export async function syncProjectFromTasks(projectId: string) {
   await prisma.project.update({ where: { id: projectId }, data: updates });
 }
 
+export async function getOrgProject(projectId: string, orgId: string) {
+  return prisma.project.findFirst({
+    where: { id: projectId, orgId },
+  });
+}
+
 export function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
 }
 
 export function notFound(message = "Not found") {
   return NextResponse.json({ error: message }, { status: 404 });
+}
+
+export function forbidden(message = "Forbidden") {
+  return NextResponse.json({ error: message }, { status: 403 });
 }

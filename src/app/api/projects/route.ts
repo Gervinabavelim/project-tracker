@@ -6,11 +6,15 @@ import {
   validateProjectFields,
   badRequest,
 } from "@/lib/api-utils";
+import { getSessionContext, unauthorized } from "@/lib/session";
 
 export const GET = withErrorHandler(async (req: NextRequest) => {
+  const ctx = await getSessionContext();
+  if (!ctx) return unauthorized();
+
   const showArchived = req.nextUrl.searchParams.get("archived") === "true";
   const projects = await prisma.project.findMany({
-    where: { archived: showArchived },
+    where: { orgId: ctx.orgId, archived: showArchived },
     include: { tasks: { orderBy: { order: "asc" } } },
     orderBy: { updatedAt: "desc" },
   });
@@ -18,6 +22,10 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
 });
 
 export const POST = withErrorHandler(async (req: NextRequest) => {
+  const ctx = await getSessionContext();
+  if (!ctx) return unauthorized();
+  if (ctx.role === "viewer") return badRequest("Viewers cannot create projects");
+
   const body = await req.json();
 
   const missing = validateRequired(body, ["name"]);
@@ -36,8 +44,9 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       dueDate: body.dueDate ? new Date(body.dueDate) : null,
       tags: body.tags ?? "",
       notes: body.notes ?? "",
+      orgId: ctx.orgId,
       activities: {
-        create: { action: "Project created" },
+        create: { action: "Project created", userId: ctx.userId },
       },
     },
     include: { tasks: true, activities: true },

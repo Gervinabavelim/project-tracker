@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { Project } from "@/lib/constants";
 
@@ -16,8 +17,10 @@ const STATUS_DOT: Record<string, string> = {
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session } = useSession();
   const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const currentProjectId = pathname.startsWith("/project/")
@@ -175,6 +178,50 @@ export default function Sidebar() {
           New Project
         </button>
       </div>
+
+      {/* User menu */}
+      {session?.user && (
+        <div className="border-t border-black/[0.06] p-2 relative">
+          <button
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            className="flex items-center gap-2.5 w-full px-2 py-[6px] text-[12px] text-[#666666] hover:text-black hover:bg-black/[0.04] rounded-md transition-colors"
+          >
+            <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+              {(session.user.name ?? session.user.email ?? "?")[0].toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <div className="text-[12px] font-semibold truncate">{session.user.name}</div>
+              <div className="text-[10px] text-[#aaaaaa] truncate">{session.user.email}</div>
+            </div>
+            <svg className="w-3 h-3 opacity-40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+            </svg>
+          </button>
+          {userMenuOpen && (
+            <div className="absolute bottom-full left-2 right-2 mb-1 bg-white border border-[#e0e0e0] rounded-lg shadow-lg py-1 z-50">
+              <Link
+                href="/team"
+                onClick={() => setUserMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-[12px] text-[#666] hover:bg-[#f5f5f5] transition-colors"
+              >
+                <svg className="w-3.5 h-3.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
+                Team
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </aside>
   );
 }

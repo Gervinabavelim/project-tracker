@@ -5,49 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Project Tracker — Track your projects automatically</title>
   <meta name="description" content="A lightweight macOS app that auto-tracks your coding, design, and general projects. Links to your folders, detects git commits, file changes, and updates progress automatically." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #fafafa;
-      --text: #111;
-      --muted: #888;
-      --border: #e0e0e0;
-      --accent: #000;
-      --accent-hover: #333;
-      --card-bg: #fff;
-      --green: #10b981;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0a0a0a;
-        --text: #f0f0f0;
-        --muted: #888;
-        --border: #222;
-        --accent: #fff;
-        --accent-hover: #ccc;
-        --card-bg: #111;
-      }
+      --bg: #09090b;
+      --bg-subtle: #111113;
+      --text: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-tertiary: #71717a;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --card-bg: rgba(255,255,255,0.03);
+      --card-bg-hover: rgba(255,255,255,0.06);
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --blue: #3b82f6;
+      --amber: #f59e0b;
+      --purple: #a855f7;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     .container {
-      max-width: 960px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 0 24px;
     }
 
+    /* Animations */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes progress-fill {
+      from { width: 0; }
+      to { width: 72%; }
+    }
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .animate-fade-up { animation: fade-up 0.8s ease-out both; }
+    .animate-fade-up-1 { animation: fade-up 0.8s ease-out 0.1s both; }
+    .animate-fade-up-2 { animation: fade-up 0.8s ease-out 0.2s both; }
+    .animate-fade-up-3 { animation: fade-up 0.8s ease-out 0.3s both; }
+    .animate-fade-up-4 { animation: fade-up 0.8s ease-out 0.4s both; }
+
     /* Nav */
     nav {
-      padding: 20px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(9, 9, 11, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
       border-bottom: 1px solid var(--border);
     }
     nav .container {
@@ -63,116 +104,168 @@
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
     .logo-icon {
-      width: 24px;
-      height: 24px;
-      background: var(--accent);
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent), #059669);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
     }
-    .logo-icon svg { width: 14px; height: 14px; }
-    nav a.gh {
+    .logo-icon svg { width: 15px; height: 15px; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .nav-links a {
       font-size: 13px;
-      color: var(--muted);
+      font-weight: 500;
+      color: var(--text-tertiary);
       text-decoration: none;
       transition: color 0.2s;
     }
-    nav a.gh:hover { color: var(--text); }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links .nav-cta {
+      padding: 7px 16px;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .nav-links .nav-cta:hover { opacity: 0.9; }
 
     /* Hero */
     .hero {
-      padding: 100px 0 80px;
+      padding: 160px 0 100px;
       text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+      pointer-events: none;
     }
     .badge {
-      display: inline-block;
-      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
       font-weight: 600;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: var(--green);
-      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      background: var(--accent-glow);
       border: 1px solid rgba(16, 185, 129, 0.2);
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-bottom: 24px;
+      padding: 6px 16px;
+      border-radius: 24px;
+      margin-bottom: 28px;
+    }
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-glow 2s ease-in-out infinite;
     }
     h1 {
-      font-size: clamp(36px, 6vw, 56px);
-      font-weight: 700;
-      letter-spacing: -1.5px;
-      line-height: 1.1;
-      margin-bottom: 20px;
+      font-size: clamp(40px, 7vw, 64px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.5) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .hero p {
+    .hero-sub {
       font-size: 18px;
-      color: var(--muted);
-      max-width: 540px;
-      margin: 0 auto 40px;
-      letter-spacing: -0.3px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 44px;
+      letter-spacing: -0.2px;
+      line-height: 1.7;
     }
     .cta-group {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       justify-content: center;
       flex-wrap: wrap;
     }
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       padding: 14px 28px;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 15px;
       font-weight: 600;
       text-decoration: none;
-      transition: all 0.2s;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       letter-spacing: -0.3px;
+      border: none;
+      cursor: pointer;
     }
     .btn-primary {
-      background: var(--accent);
-      color: var(--bg);
+      background: linear-gradient(135deg, var(--accent), #059669);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255,255,255,0.1);
     }
     .btn-primary:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
     }
     .btn-secondary {
-      background: transparent;
+      background: rgba(255,255,255,0.06);
       color: var(--text);
       border: 1px solid var(--border);
     }
     .btn-secondary:hover {
-      border-color: var(--muted);
-      transform: translateY(-1px);
+      background: rgba(255,255,255,0.1);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
     }
     .btn svg { width: 18px; height: 18px; }
     .platform-note {
-      margin-top: 16px;
-      font-size: 12px;
-      color: var(--muted);
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-tertiary);
     }
 
     /* App Preview */
     .preview {
-      padding: 0 0 80px;
+      padding: 0 0 120px;
     }
     .preview-frame {
-      background: var(--card-bg);
+      background: var(--bg-subtle);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03),
+        0 24px 80px rgba(0,0,0,0.4),
+        0 8px 24px rgba(0,0,0,0.2);
+      animation: float 6s ease-in-out infinite;
     }
     .preview-titlebar {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 16px 20px;
+      padding: 18px 22px;
+      background: rgba(255,255,255,0.02);
       border-bottom: 1px solid var(--border);
     }
     .dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -180,11 +273,11 @@
     .dot-yellow { background: #ffbd2e; }
     .dot-green { background: #28c840; }
     .preview-content {
-      padding: 40px;
+      padding: 32px 36px;
       display: grid;
       grid-template-columns: 200px 1fr;
       gap: 32px;
-      min-height: 340px;
+      min-height: 360px;
     }
     .preview-sidebar {
       border-right: 1px solid var(--border);
@@ -194,203 +287,352 @@
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: var(--muted);
+      color: var(--text-tertiary);
       margin-bottom: 16px;
+      font-weight: 600;
     }
     .preview-project {
       padding: 10px 12px;
       border-radius: 8px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       font-size: 13px;
       letter-spacing: -0.3px;
+      color: var(--text-secondary);
       cursor: default;
+      transition: background 0.2s;
     }
     .preview-project.active {
-      background: rgba(0,0,0,0.05);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
       font-weight: 600;
     }
-    .preview-project .status-dot {
+    .status-dot {
       display: inline-block;
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      margin-right: 8px;
+      margin-right: 10px;
     }
     .preview-main h2 {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.5px;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
     }
-    .preview-progress {
+    .preview-desc {
+      font-size: 13px;
+      color: var(--text-tertiary);
       margin-bottom: 24px;
     }
+    .preview-meta {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .preview-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: -0.2px;
+    }
+    .tag-status { background: rgba(16, 185, 129, 0.12); color: var(--accent); }
+    .tag-priority { background: rgba(245, 158, 11, 0.12); color: var(--amber); }
+    .tag-live {
+      background: rgba(168, 85, 247, 0.12);
+      color: var(--purple);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .tag-live::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--purple);
+      animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+    .preview-progress { margin-bottom: 28px; }
     .preview-progress-label {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+      font-weight: 500;
     }
     .preview-bar {
       height: 6px;
-      background: var(--border);
+      background: rgba(255,255,255,0.06);
       border-radius: 3px;
       overflow: hidden;
     }
     .preview-bar-fill {
       height: 100%;
       border-radius: 3px;
-      background: var(--green);
-      width: 72%;
+      background: linear-gradient(90deg, var(--accent), #34d399);
+      animation: progress-fill 2s ease-out 0.5s both;
     }
-    .preview-activity {
-      font-size: 12px;
-      color: var(--muted);
+    .preview-activity-header {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+      font-weight: 600;
     }
     .preview-activity div {
-      padding: 6px 0;
-      border-left: 2px solid var(--border);
-      padding-left: 12px;
-      margin-bottom: 4px;
+      font-size: 12px;
+      padding: 8px 0 8px 14px;
+      border-left: 2px solid rgba(255,255,255,0.06);
+      margin-bottom: 2px;
+      color: var(--text-tertiary);
+      animation: slide-in 0.5s ease-out both;
     }
-    .preview-activity .commit { color: var(--text); }
-
-    @media (prefers-color-scheme: dark) {
-      .preview-project.active { background: rgba(255,255,255,0.06); }
-      .preview-frame { box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .preview-activity div:nth-child(1) { animation-delay: 1s; }
+    .preview-activity div:nth-child(2) { animation-delay: 1.3s; }
+    .preview-activity div:nth-child(3) { animation-delay: 1.6s; }
+    .preview-activity div:nth-child(4) { animation-delay: 1.9s; }
+    .preview-activity .commit {
+      color: var(--text-secondary);
+      border-left-color: var(--accent);
+    }
+    .preview-activity .auto {
+      border-left-color: var(--purple);
+    }
+    .commit-hash {
+      font-family: 'SF Mono', Menlo, monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 4px;
     }
 
     /* Features */
     .features {
-      padding: 80px 0;
-      border-top: 1px solid var(--border);
+      padding: 120px 0;
     }
-    .features-header {
+    .section-label {
       text-align: center;
-      margin-bottom: 60px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 16px;
     }
-    .features-header h2 {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -1px;
+    .section-title {
+      text-align: center;
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
       margin-bottom: 12px;
+      background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.6) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .features-header p {
+    .section-sub {
+      text-align: center;
       font-size: 16px;
-      color: var(--muted);
+      color: var(--text-tertiary);
+      margin-bottom: 64px;
     }
     .features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    @media (max-width: 700px) {
-      .features-grid { grid-template-columns: 1fr; }
-      .preview-content { grid-template-columns: 1fr; }
-      .preview-sidebar { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 16px; }
+      gap: 16px;
     }
     .feature-card {
-      padding: 28px;
-      border-radius: 12px;
+      padding: 32px;
+      border-radius: 16px;
       border: 1px solid var(--border);
       background: var(--card-bg);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    }
+    .feature-card:hover {
+      background: var(--card-bg-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
     }
     .feature-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: rgba(16, 185, 129, 0.1);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-    .feature-icon svg { width: 20px; height: 20px; color: var(--green); }
+    .fi-green { background: rgba(16, 185, 129, 0.1); }
+    .fi-green svg { color: var(--accent); }
+    .fi-blue { background: rgba(59, 130, 246, 0.1); }
+    .fi-blue svg { color: var(--blue); }
+    .fi-amber { background: rgba(245, 158, 11, 0.1); }
+    .fi-amber svg { color: var(--amber); }
+    .fi-purple { background: rgba(168, 85, 247, 0.1); }
+    .fi-purple svg { color: var(--purple); }
+    .feature-icon svg { width: 22px; height: 22px; }
     .feature-card h3 {
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
       letter-spacing: -0.3px;
       margin-bottom: 8px;
     }
     .feature-card p {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
+      font-size: 14px;
+      color: var(--text-tertiary);
+      line-height: 1.6;
     }
 
     /* How it works */
     .how {
-      padding: 80px 0;
+      padding: 120px 0;
+      background: var(--bg-subtle);
       border-top: 1px solid var(--border);
-    }
-    .how h2 {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -1px;
-      text-align: center;
-      margin-bottom: 48px;
+      border-bottom: 1px solid var(--border);
     }
     .steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
+      gap: 48px;
+      position: relative;
     }
-    @media (max-width: 700px) {
-      .steps { grid-template-columns: 1fr; }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(16.66% + 18px);
+      right: calc(16.66% + 18px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--blue), var(--purple));
+      opacity: 0.3;
     }
-    .step {
-      text-align: center;
-    }
+    .step { text-align: center; position: relative; }
     .step-num {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: var(--bg);
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .step:nth-child(1) .step-num {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .step:nth-child(2) .step-num {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--blue);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    .step:nth-child(3) .step-num {
+      background: rgba(168, 85, 247, 0.1);
+      color: var(--purple);
+      border: 1px solid rgba(168, 85, 247, 0.2);
     }
     .step h3 {
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 17px;
+      font-weight: 700;
       letter-spacing: -0.3px;
       margin-bottom: 8px;
     }
     .step p {
-      font-size: 13px;
-      color: var(--muted);
+      font-size: 14px;
+      color: var(--text-tertiary);
+      max-width: 260px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
 
-    /* CTA */
+    /* Bottom CTA */
     .bottom-cta {
-      padding: 80px 0;
+      padding: 120px 0;
       text-align: center;
-      border-top: 1px solid var(--border);
+      position: relative;
+    }
+    .bottom-cta::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+      pointer-events: none;
     }
     .bottom-cta h2 {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
       margin-bottom: 12px;
+      background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.6) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .bottom-cta p {
-      font-size: 15px;
-      color: var(--muted);
-      margin-bottom: 28px;
+      font-size: 16px;
+      color: var(--text-tertiary);
+      margin-bottom: 36px;
     }
 
     /* Footer */
     footer {
-      padding: 24px 0;
+      padding: 28px 0;
       border-top: 1px solid var(--border);
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
+    }
+    footer .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    footer .copy {
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+    footer .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+    footer .footer-links a {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer .footer-links a:hover { color: var(--text-secondary); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; gap: 32px; }
+      .steps::before { display: none; }
+      .preview-content { grid-template-columns: 1fr; }
+      .preview-sidebar { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 16px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      footer .container { flex-direction: column; gap: 12px; }
     }
   </style>
 </head>
@@ -407,17 +649,22 @@
         </span>
         Project Tracker
       </a>
-      <a href="https://github.com" class="gh">GitHub</a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="https://github.com/Gervinabavelim/project-tracker">GitHub</a>
+        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.1.0/Project.Tracker-0.1.0-arm64.dmg" class="nav-cta">Download</a>
+      </div>
     </div>
   </nav>
 
   <section class="hero">
     <div class="container">
-      <div class="badge">Free &amp; Open Source</div>
-      <h1>Track your projects<br>automatically</h1>
-      <p>A lightweight macOS menu bar app that watches your project folders and tracks progress from git commits, file changes, and tasks — without you lifting a finger.</p>
-      <div class="cta-group">
-        <a href="#download" class="btn btn-primary" id="download-btn">
+      <div class="badge animate-fade-up">Free &amp; Open Source</div>
+      <h1 class="animate-fade-up-1">Track your projects<br>automatically</h1>
+      <p class="hero-sub animate-fade-up-2">A macOS menu bar app that watches your project folders and tracks progress from git commits, file changes, and tasks — without you lifting a finger.</p>
+      <div class="cta-group animate-fade-up-3">
+        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.1.0/Project.Tracker-0.1.0-arm64.dmg" class="btn btn-primary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />
@@ -425,18 +672,18 @@
           </svg>
           Download for macOS
         </a>
-        <a href="https://github.com" class="btn btn-secondary">
-          <svg viewBox="0 0 24 24" fill="currentColor">
+        <a href="https://github.com/Gervinabavelim/project-tracker" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
           </svg>
           View Source
         </a>
       </div>
-      <p class="platform-note">macOS 12+ &middot; Apple Silicon &amp; Intel &middot; ~80 MB</p>
+      <p class="platform-note animate-fade-up-4">macOS 12+ &middot; Apple Silicon &amp; Intel &middot; Free forever</p>
     </div>
   </section>
 
-  <section class="preview">
+  <section class="preview animate-fade-up-4">
     <div class="container">
       <div class="preview-frame">
         <div class="preview-titlebar">
@@ -460,24 +707,31 @@
               Mobile App
             </div>
             <div class="preview-project">
-              <span class="status-dot" style="background:#888"></span>
+              <span class="status-dot" style="background:#71717a"></span>
               Design System
             </div>
           </div>
           <div class="preview-main">
             <h2>Landing Page</h2>
+            <p class="preview-desc">Marketing site for the product launch</p>
+            <div class="preview-meta">
+              <span class="preview-tag tag-status">In Progress</span>
+              <span class="preview-tag tag-priority">High Priority</span>
+              <span class="preview-tag tag-live">Auto-tracking</span>
+            </div>
             <div class="preview-progress">
               <div class="preview-progress-label">
                 <span>Progress</span>
-                <span>72% &middot; auto-tracked</span>
+                <span>72% &middot; auto-tracked from tasks</span>
               </div>
               <div class="preview-bar"><div class="preview-bar-fill"></div></div>
             </div>
+            <div class="preview-activity-header">Recent Activity</div>
             <div class="preview-activity">
-              <div class="commit">Commit a3f2c1: Add hero section and CTA</div>
-              <div class="commit">Commit 9e1b4d: Setup Tailwind config</div>
-              <div>3 files modified</div>
-              <div>Status auto-changed to In Progress</div>
+              <div class="commit"><span class="commit-hash">a3f2c1</span> Add hero section and CTA</div>
+              <div class="commit"><span class="commit-hash">9e1b4d</span> Setup Tailwind config</div>
+              <div class="auto">Status auto-changed to In Progress</div>
+              <div>Progress auto-updated to 72%</div>
             </div>
           </div>
         </div>
@@ -485,83 +739,85 @@
     </div>
   </section>
 
-  <section class="features">
+  <section class="features" id="features">
     <div class="container">
-      <div class="features-header">
-        <h2>Everything happens automatically</h2>
-        <p>Link a folder. The app does the rest.</p>
-      </div>
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything happens automatically</h2>
+      <p class="section-sub">Link a folder. The app does the rest.</p>
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon fi-green">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3" />
-              <path d="M12 1v4m0 14v4m-9-9h4m14 0h4m-3.3-6.7l-2.8 2.8m-9.8 0L4.3 5.3m0 13.4l2.8-2.8m9.8 0l2.8 2.8" />
+              <line x1="12" y1="1" x2="12" y2="5" /><line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="1" y1="12" x2="5" y2="12" /><line x1="19" y1="12" x2="23" y2="12" />
             </svg>
           </div>
           <h3>Git Commit Tracking</h3>
-          <p>Detects new commits every 30 seconds. Each commit appears in your project's activity log with hash and message.</p>
+          <p>Detects new commits every 30 seconds. Each commit appears in your activity log with hash and message.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon fi-blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
           </div>
           <h3>File Change Detection</h3>
-          <p>Watches for new and modified files in any folder — code, design assets, documents. Works with or without git.</p>
+          <p>Watches for new and modified files in any folder. Code, design assets, documents. Git optional.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon fi-green">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
           <h3>Auto Progress &amp; Status</h3>
-          <p>Progress updates from task completion. Status transitions automatically — Planning to In Progress to Done.</p>
+          <p>Progress updates from tasks. Status transitions automatically from Planning to In Progress to Done.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon fi-purple">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
           </div>
           <h3>Menu Bar App</h3>
-          <p>Lives in your menu bar. Click the icon for a quick glance at all projects, or open the full dashboard.</p>
+          <p>Lives in your menu bar. Quick glance at all projects from a popover, or open the full dashboard.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon fi-amber">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+              <rect x="9" y="3" width="6" height="4" rx="1" />
+              <line x1="9" y1="12" x2="15" y2="12" />
+              <line x1="9" y1="16" x2="13" y2="16" />
             </svg>
           </div>
           <h3>Task Management</h3>
-          <p>Add tasks, check them off. Progress and status update themselves. Markdown notes with live preview.</p>
+          <p>Add tasks, check them off. Markdown notes with live preview. Everything syncs to progress automatically.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
+          <div class="feature-icon fi-blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="17" x2="12" y2="21" />
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <h3>Works Offline</h3>
-          <p>Everything runs locally on your Mac. No accounts, no cloud, no telemetry. Your data stays on your machine.</p>
+          <h3>Private &amp; Offline</h3>
+          <p>Everything runs locally on your Mac. No accounts, no cloud, no telemetry. Your data never leaves your machine.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="how">
+  <section class="how" id="how">
     <div class="container">
-      <h2>How it works</h2>
+      <div class="section-label">Getting started</div>
+      <h2 class="section-title">Three steps. Zero config.</h2>
+      <p class="section-sub">Up and running in under a minute.</p>
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
@@ -571,12 +827,12 @@
         <div class="step">
           <div class="step-num">2</div>
           <h3>Link a folder</h3>
-          <p>Point it at any directory on your Mac — a git repo, a design folder, a docs directory.</p>
+          <p>Point it at any directory on your Mac. A git repo, a design folder, anything.</p>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <h3>Work normally</h3>
-          <p>The app scans every 30 seconds. Commits, file changes, and tasks automatically update your project's progress.</p>
+          <p>The app scans every 30s. Commits, file changes, and tasks update progress automatically.</p>
         </div>
       </div>
     </div>
@@ -586,7 +842,7 @@
     <div class="container">
       <h2>Start tracking your projects</h2>
       <p>Free, open source, no account needed.</p>
-      <a href="#" class="btn btn-primary" id="download-btn-bottom">
+      <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.1.0/Project.Tracker-0.1.0-arm64.dmg" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
@@ -600,7 +856,11 @@
 
   <footer>
     <div class="container">
-      Project Tracker &middot; Built with Electron &amp; Next.js &middot; MIT License
+      <span class="copy">Project Tracker &middot; MIT License</span>
+      <div class="footer-links">
+        <a href="https://github.com/Gervinabavelim/project-tracker">GitHub</a>
+        <a href="https://github.com/Gervinabavelim/project-tracker/releases">Releases</a>
+      </div>
     </div>
   </footer>
 

@@ -6,17 +6,24 @@ import {
   badRequest,
   notFound,
   syncProjectFromTasks,
+  getOrgProject,
+  forbidden,
 } from "@/lib/api-utils";
+import { getSessionContext, unauthorized } from "@/lib/session";
 
 export const POST = withErrorHandler(
   async (
     req: NextRequest,
     { params }: { params: Promise<Record<string, string>> }
   ) => {
+    const ctx = await getSessionContext();
+    if (!ctx) return unauthorized();
+    if (ctx.role === "viewer") return forbidden("Viewers cannot add tasks");
+
     const { id } = await params;
     const body = await req.json();
 
-    const project = await prisma.project.findUnique({ where: { id } });
+    const project = await getOrgProject(id, ctx.orgId);
     if (!project) return notFound("Project not found");
 
     const missing = validateRequired(body, ["text"]);
@@ -38,7 +45,7 @@ export const POST = withErrorHandler(
     });
 
     await prisma.activityLog.create({
-      data: { projectId: id, action: `Task added: "${text}"` },
+      data: { projectId: id, action: `Task added: "${text}"`, userId: ctx.userId },
     });
 
     await syncProjectFromTasks(id);
