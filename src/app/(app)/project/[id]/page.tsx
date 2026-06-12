@@ -22,6 +22,8 @@ export default function ProjectDetail() {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [addingTask, setAddingTask] = useState(false);
+  const [togglingTasks, setTogglingTasks] = useState<Set<string>>(new Set());
   const { showToast } = useToast();
 
   const [name, setName] = useState("");
@@ -73,6 +75,7 @@ export default function ProjectDetail() {
         body: JSON.stringify(patch),
       });
       await fetchProject();
+      showToast("Saved", "success");
     } catch (err) {
       showToast((err as Error).message);
     } finally {
@@ -86,6 +89,7 @@ export default function ProjectDetail() {
 
   const addTask = async () => {
     if (!newTask.trim()) return;
+    setAddingTask(true);
     try {
       await apiFetch(`/api/projects/${id}/tasks`, {
         method: "POST",
@@ -96,10 +100,13 @@ export default function ProjectDetail() {
       await fetchProject();
     } catch (err) {
       showToast((err as Error).message);
+    } finally {
+      setAddingTask(false);
     }
   };
 
   const toggleTask = async (taskId: string, completed: boolean) => {
+    setTogglingTasks((prev) => new Set(prev).add(taskId));
     try {
       await apiFetch(`/api/projects/${id}/tasks/${taskId}`, {
         method: "PATCH",
@@ -109,6 +116,12 @@ export default function ProjectDetail() {
       await fetchProject();
     } catch (err) {
       showToast((err as Error).message);
+    } finally {
+      setTogglingTasks((prev) => {
+        const next = new Set(prev);
+        next.delete(taskId);
+        return next;
+      });
     }
   };
 
@@ -122,7 +135,7 @@ export default function ProjectDetail() {
   };
 
   const handleDelete = async () => {
-    if (!confirm("Delete this project? This cannot be undone.")) return;
+    if (!confirm("Delete this project permanently? This cannot be undone.")) return;
     setDeleting(true);
     try {
       await apiFetch(`/api/projects/${id}`, { method: "DELETE" });
@@ -133,11 +146,33 @@ export default function ProjectDetail() {
     }
   };
 
+  const handleArchive = async () => {
+    setSaving(true);
+    try {
+      await apiFetch(`/api/projects/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: !project?.archived }),
+      });
+      if (!project?.archived) {
+        showToast("Project archived", "success");
+        router.push("/");
+      } else {
+        await fetchProject();
+        showToast("Project restored", "success");
+      }
+    } catch (err) {
+      showToast((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const suggested = project ? suggestedProgress(project.tasks) : 0;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-full bg-white flex items-center justify-center">
         <div className="flex items-center gap-3 text-[#aaaaaa]">
           <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" opacity="0.3" />
@@ -156,20 +191,24 @@ export default function ProjectDetail() {
   const labelClass = "block text-[11px] font-bold tracking-[-0.3px] text-[#888888] mb-1.5";
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      <div className="max-w-[800px] mx-auto px-6 py-6 animate-fade-in">
+    <div className="min-h-full bg-white text-black">
+      <div className="max-w-[800px] mx-auto px-8 pt-10 pb-6 animate-fade-in">
+        {/* Archived banner */}
+        {project.archived && (
+          <div className="mb-4 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+            <span className="text-[13px] tracking-[-0.3px] text-amber-600">This project is archived</span>
+            <button
+              type="button"
+              onClick={handleArchive}
+              className="text-[12px] font-bold text-amber-600 hover:text-amber-700 underline underline-offset-2"
+            >
+              Restore
+            </button>
+          </div>
+        )}
+
         {/* Top actions bar */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            className="text-[12px] tracking-[-0.3px] text-[#888888] hover:text-black transition-colors flex items-center gap-1.5 py-1 px-2 -ml-2 rounded-lg hover:bg-[#fafafa]"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Dashboard
-          </button>
+        <div className="flex items-center justify-end mb-6">
           <div className="flex items-center gap-2">
             {saving && (
               <span className="text-[11px] text-[#aaaaaa] animate-pulse">Saving...</span>
@@ -177,9 +216,19 @@ export default function ProjectDetail() {
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-1.5 text-[13px] font-bold bg-black hover:bg-neutral-800 text-white rounded-md transition-all tracking-[-0.3px]"
+              disabled={saving}
+              className="px-4 py-1.5 text-[13px] font-bold bg-black hover:bg-neutral-800 disabled:opacity-40 text-white rounded-md transition-all tracking-[-0.3px]"
             >
               Save
+            </button>
+            <button
+              type="button"
+              onClick={handleArchive}
+              disabled={saving}
+              className="px-3 py-1.5 text-[13px] tracking-[-0.3px] text-[#888888] hover:text-amber-600 hover:bg-amber-50
+              border border-transparent hover:border-amber-200 rounded-md transition-all disabled:opacity-40"
+            >
+              {project.archived ? "Restore" : "Archive"}
             </button>
             <button
               type="button"
@@ -310,12 +359,15 @@ export default function ProjectDetail() {
                 {project.tasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center gap-2.5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg px-3 py-2.5 group"
+                    className={`flex items-center gap-2.5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg px-3 py-2.5 group ${
+                      togglingTasks.has(task.id) ? "opacity-50" : ""
+                    }`}
                   >
                     <input
                       type="checkbox"
                       checked={task.completed}
                       onChange={() => toggleTask(task.id, task.completed)}
+                      disabled={togglingTasks.has(task.id)}
                       className="accent-black shrink-0 w-3.5 h-3.5"
                     />
                     <span
@@ -342,15 +394,16 @@ export default function ProjectDetail() {
                   onChange={(e) => setNewTask(e.target.value)}
                   placeholder="Add a task..."
                   onKeyDown={(e) => e.key === "Enter" && addTask()}
+                  disabled={addingTask}
                 />
                 <button
                   type="button"
                   onClick={addTask}
-                  disabled={!newTask.trim()}
+                  disabled={!newTask.trim() || addingTask}
                   className="px-3 py-2 text-[13px] bg-[#fafafa] hover:bg-[#f0f0f0] border border-[#e0e0e0]
                   text-[#888888] hover:text-black rounded-md transition-all disabled:opacity-40 tracking-[-0.3px]"
                 >
-                  Add
+                  {addingTask ? "..." : "Add"}
                 </button>
               </div>
             </div>

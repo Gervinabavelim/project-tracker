@@ -1,6 +1,6 @@
 "use client";
 
-import TopBar from "@/components/TopBar";
+import Sidebar from "@/components/Sidebar";
 import { ToastProvider } from "@/components/Toast";
 
 export default function AppLayout({
@@ -10,8 +10,10 @@ export default function AppLayout({
 }) {
   return (
     <ToastProvider>
-      <TopBar />
-      <main className="flex-1 pt-16">{children}</main>
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
     </ToastProvider>
   );
 }

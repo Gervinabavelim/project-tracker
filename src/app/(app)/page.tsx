@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { Suspense, useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Project } from "@/lib/constants";
 import { parseTags } from "@/lib/helpers";
@@ -15,6 +15,14 @@ import CreateProjectModal from "@/components/CreateProjectModal";
 const PRIORITY_WEIGHT: Record<string, number> = { High: 3, Medium: 2, Low: 1 };
 
 export default function Dashboard() {
+  return (
+    <Suspense>
+      <DashboardInner />
+    </Suspense>
+  );
+}
+
+function DashboardInner() {
   const searchParams = useSearchParams();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,10 +33,12 @@ export default function Dashboard() {
   const [filterPriority, setFilterPriority] = useState("");
   const [filterTag, setFilterTag] = useState("");
   const [sort, setSort] = useState("updated");
+  const [showArchived, setShowArchived] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     try {
-      const data = await apiFetch<Project[]>("/api/projects");
+      const url = showArchived ? "/api/projects?archived=true" : "/api/projects";
+      const data = await apiFetch<Project[]>(url);
       setProjects(data);
     } catch (err) {
       showToast((err as Error).message);
@@ -36,7 +46,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [showToast, showArchived]);
 
   useEffect(() => {
     fetchProjects();
@@ -85,28 +95,42 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      <div className="max-w-[800px] mx-auto px-6 py-6 animate-fade-in">
+    <div className="min-h-full bg-white text-black">
+      <div className="max-w-[800px] mx-auto px-8 pt-10 pb-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-end justify-between mb-8">
           <div>
             <p className="text-[13px] uppercase tracking-[1.5px] text-[#aaaaaa] mb-1">
-              dashboard
+              {showArchived ? "archived" : "dashboard"}
             </p>
             <p className="text-[15px] tracking-[-0.3px] text-[#888888]">
-              {projects.length} project{projects.length !== 1 ? "s" : ""} tracked
+              {projects.length} project{projects.length !== 1 ? "s" : ""} {showArchived ? "archived" : "tracked"}
             </p>
           </div>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="px-5 py-2.5 bg-black hover:bg-neutral-800 text-[13px] font-bold
-            text-white rounded-md transition-all flex items-center gap-2 tracking-[-0.3px]"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            New Project
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { setShowArchived(!showArchived); setLoading(true); }}
+              className={`px-3 py-2.5 text-[13px] tracking-[-0.3px] rounded-md transition-all border ${
+                showArchived
+                  ? "bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100"
+                  : "bg-[#fafafa] border-[#e0e0e0] text-[#888888] hover:text-black hover:border-[#999999]"
+              }`}
+            >
+              {showArchived ? "Active" : "Archived"}
+            </button>
+            {!showArchived && (
+              <button
+                onClick={() => setModalOpen(true)}
+                className="px-5 py-2.5 bg-black hover:bg-neutral-800 text-[13px] font-bold
+                text-white rounded-md transition-all flex items-center gap-2 tracking-[-0.3px]"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                New Project
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (

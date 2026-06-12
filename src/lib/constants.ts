@@ -31,6 +31,7 @@ export type Project = {
   dueDate: string | null;
   tags: string;
   notes: string;
+  archived: boolean;
   createdAt: string;
   updatedAt: string;
   tasks: Task[];

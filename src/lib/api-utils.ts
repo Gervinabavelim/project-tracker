@@ -82,6 +82,7 @@ const ALLOWED_PROJECT_FIELDS = new Set([
   "dueDate",
   "tags",
   "notes",
+  "archived",
 ]);
 
 export function pickProjectFields(

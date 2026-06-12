@@ -7,8 +7,10 @@ import {
   badRequest,
 } from "@/lib/api-utils";
 
-export const GET = withErrorHandler(async () => {
+export const GET = withErrorHandler(async (req: NextRequest) => {
+  const showArchived = req.nextUrl.searchParams.get("archived") === "true";
   const projects = await prisma.project.findMany({
+    where: { archived: showArchived },
     include: { tasks: { orderBy: { order: "asc" } } },
     orderBy: { updatedAt: "desc" },
   });

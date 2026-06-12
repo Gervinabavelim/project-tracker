@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: "Lato", system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -51,14 +51,9 @@ input[type="range"]::-webkit-slider-thumb {
   --tw-prose-code: #000000;
 }
 
-/* TopBar pill */
-.topbar-pill {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* TopBar dropdown entrance */
-.topbar-dropdown {
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* Sidebar active states */
+.sidebar-item-active {
+  background: rgba(0, 0, 0, 0.06);
 }
 
 /* Card hover lift */
