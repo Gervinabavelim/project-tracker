@@ -11,8 +11,8 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:reset": "npx prisma migrate reset --force && npx tsx prisma/seed.ts",
     "electron:dev": "NODE_ENV=development electron .",
-    "electron:build": "next build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static && electron-builder --mac",
-    "electron:pack": "next build && electron-builder --mac --dir"
+    "electron:build": "next build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static && mkdir -p .next/standalone/prisma && cp prisma/dev.db .next/standalone/prisma/dev.db && electron-builder --mac",
+    "electron:pack": "next build && mkdir -p .next/standalone/prisma && cp prisma/dev.db .next/standalone/prisma/dev.db && electron-builder --mac --dir"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
