@@ -17,7 +17,7 @@ function createTrayIcon() {
   const icon = nativeImage.createFromPath(
     path.join(__dirname, "tray-icon.png")
   );
-  icon.setTemplateImage(true);
+  icon.setTemplateImage(false);
   return icon;
 }
 
