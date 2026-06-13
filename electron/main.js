@@ -41,10 +41,12 @@ function startServer() {
   if (isDev) return waitForServer();
 
   return new Promise((resolve, reject) => {
-    serverProcess = spawn("npx", ["next", "start", "-p", String(PORT)], {
-      cwd: ROOT,
-      shell: true,
-      env: { ...process.env, NODE_ENV: "production" },
+    const resourcesDir = path.join(ROOT, "..");
+    const standaloneDir = path.join(resourcesDir, "app.asar.unpacked", ".next", "standalone");
+    const standaloneServer = path.join(standaloneDir, "server.js");
+    serverProcess = spawn("node", [standaloneServer], {
+      cwd: standaloneDir,
+      env: { ...process.env, NODE_ENV: "production", PORT: String(PORT), HOSTNAME: "localhost", AUTH_TRUST_HOST: "true" },
       stdio: "pipe",
     });
 

@@ -1,6 +1,6 @@
 {
   "name": "project-tracker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "main": "electron/main.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:reset": "npx prisma migrate reset --force && npx tsx prisma/seed.ts",
     "electron:dev": "NODE_ENV=development electron .",
-    "electron:build": "next build && electron-builder --mac",
+    "electron:build": "next build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static && electron-builder --mac",
     "electron:pack": "next build && electron-builder --mac --dir"
   },
   "prisma": {
@@ -27,18 +27,22 @@
     },
     "files": [
       "electron/**/*",
-      ".next/**/*",
+      ".next/standalone/**/*",
+      ".next/static/**/*",
       "public/**/*",
-      "node_modules/**/*",
       "package.json",
       "prisma/**/*",
-      "src/generated/**/*"
+      "src/generated/**/*",
+      "!node_modules"
     ],
     "extraResources": [
       {
         "from": "prisma",
         "to": "prisma"
       }
+    ],
+    "asarUnpack": [
+      ".next/standalone/**/*"
     ],
     "directories": {
       "output": "dist-electron"

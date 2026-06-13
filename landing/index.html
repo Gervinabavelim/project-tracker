@@ -244,19 +244,20 @@
       font-size: 13px;
       color: var(--text-tertiary);
     }
-    .install-note {
-      margin-top: 16px;
+    .install-hint {
+      margin-top: 20px;
       font-size: 13px;
       color: var(--text-tertiary);
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.15);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 10px 18px;
+      padding: 12px 20px;
       display: inline-block;
       max-width: 480px;
+      line-height: 1.7;
     }
-    .install-note strong {
-      color: var(--amber);
+    .install-hint strong {
+      color: var(--text-secondary);
     }
 
     /* App Preview */
@@ -667,7 +668,7 @@
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
         <a href="https://github.com/Gervinabavelim/project-tracker">GitHub</a>
-        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.0/Project.Tracker-0.2.0-arm64.dmg" class="nav-cta">Download</a>
+        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.1/Project.Tracker-0.2.1-arm64.dmg" class="nav-cta">Download</a>
       </div>
     </div>
   </nav>
@@ -678,7 +679,7 @@
       <h1 class="animate-fade-up-1">Track your projects<br>automatically</h1>
       <p class="hero-sub animate-fade-up-2">A macOS app that watches your project folders and tracks progress from git commits, file changes, and tasks. Built for solo devs and corporate teams alike.</p>
       <div class="cta-group animate-fade-up-3">
-        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.0/Project.Tracker-0.2.0-arm64.dmg" class="btn btn-primary">
+        <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.1/Project.Tracker-0.2.1-arm64.dmg" class="btn btn-primary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />
@@ -694,10 +695,8 @@
         </a>
       </div>
       <p class="platform-note animate-fade-up-4">macOS 12+ &middot; Apple Silicon &amp; Intel &middot; Free forever</p>
-      <div class="install-note animate-fade-up-4">
-        <strong>First launch:</strong> After dragging to Applications, open Terminal and run:<br>
-        <code style="background:rgba(255,255,255,0.08);padding:3px 8px;border-radius:5px;font-size:12px;margin-top:4px;display:inline-block;">xattr -cr /Applications/Project\ Tracker.app</code><br>
-        Then open the app normally. This is required once for apps outside the App Store.
+      <div class="install-hint animate-fade-up-4">
+        <strong>First launch:</strong> Right-click the app &rarr; Open &rarr; click "Open" in the dialog. After that, it opens normally with a double-click.
       </div>
     </div>
   </section>
@@ -880,7 +879,7 @@
     <div class="container">
       <h2>Start tracking your projects</h2>
       <p>Free, open source, built for teams.</p>
-      <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.0/Project.Tracker-0.2.0-arm64.dmg" class="btn btn-primary">
+      <a href="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.1/Project.Tracker-0.2.1-arm64.dmg" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
@@ -889,9 +888,6 @@
         Download for macOS
       </a>
       <p class="platform-note">macOS 12+ &middot; Apple Silicon &amp; Intel</p>
-      <div class="install-note">
-        <strong>First launch:</strong> Right-click the app &rarr; Open &rarr; click "Open" in the dialog.
-      </div>
     </div>
   </section>
 

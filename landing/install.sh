@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-DMG_URL="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.0/Project.Tracker-0.2.0-arm64.dmg"
+DMG_URL="https://github.com/Gervinabavelim/project-tracker/releases/download/v0.2.1/Project.Tracker-0.2.1-arm64.dmg"
 DMG_PATH="/tmp/ProjectTracker.dmg"
-MOUNT_POINT="/Volumes/Project Tracker 0.2.0-arm64"
+MOUNT_POINT="/Volumes/Project Tracker 0.2.1-arm64"
 APP_NAME="Project Tracker.app"
 
 echo "Downloading Project Tracker..."
