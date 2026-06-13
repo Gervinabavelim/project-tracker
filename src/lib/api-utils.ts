@@ -19,6 +19,20 @@ export function withErrorHandler(handler: RouteHandler): RouteHandler {
       ) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });
       }
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma error:", error.code, error.message);
+        return NextResponse.json(
+          { error: "Database error" },
+          { status: 500 }
+        );
+      }
+      if (error instanceof Prisma.PrismaClientInitializationError) {
+        console.error("Prisma init error:", error.message);
+        return NextResponse.json(
+          { error: "Database connection failed" },
+          { status: 500 }
+        );
+      }
       if (error instanceof SyntaxError) {
         return NextResponse.json(
           { error: "Invalid JSON in request body" },
