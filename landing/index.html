@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Project Tracker — Track your projects automatically</title>
   <meta name="description" content="A lightweight macOS app that auto-tracks your coding, design, and general projects. Links to your folders, detects git commits, file changes, and updates progress automatically." />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta property="og:image" content="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -21,8 +25,8 @@
       --border-hover: rgba(255,255,255,0.15);
       --card-bg: rgba(255,255,255,0.03);
       --card-bg-hover: rgba(255,255,255,0.06);
-      --accent: #10b981;
-      --accent-glow: rgba(16, 185, 129, 0.15);
+      --accent: #22d3ee;
+      --accent-glow: rgba(34, 211, 238, 0.15);
       --blue: #3b82f6;
       --amber: #f59e0b;
       --purple: #a855f7;
@@ -109,14 +113,10 @@
     .logo-icon {
       width: 28px;
       height: 28px;
-      background: linear-gradient(135deg, var(--accent), #059669);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+      border-radius: 7px;
+      overflow: hidden;
     }
-    .logo-icon svg { width: 15px; height: 15px; }
+    .logo-icon img { width: 100%; height: 100%; }
     .nav-links {
       display: flex;
       align-items: center;
@@ -154,7 +154,7 @@
       transform: translateX(-50%);
       width: 800px;
       height: 600px;
-      background: radial-gradient(ellipse, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(34, 211, 238, 0.08) 0%, transparent 70%);
       pointer-events: none;
     }
     .badge {
@@ -167,7 +167,7 @@
       text-transform: uppercase;
       color: var(--accent);
       background: var(--accent-glow);
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(34, 211, 238, 0.2);
       padding: 6px 16px;
       border-radius: 24px;
       margin-bottom: 28px;
@@ -220,13 +220,13 @@
       cursor: pointer;
     }
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #059669);
+      background: linear-gradient(135deg, #1D4ED8, #0891B2);
       color: #fff;
-      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+      box-shadow: 0 4px 16px rgba(34, 211, 238, 0.25), inset 0 1px 0 rgba(255,255,255,0.1);
     }
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+      box-shadow: 0 8px 28px rgba(34, 211, 238, 0.35), inset 0 1px 0 rgba(255,255,255,0.1);
     }
     .btn-secondary {
       background: rgba(255,255,255,0.06);
@@ -351,7 +351,7 @@
       border-radius: 6px;
       letter-spacing: -0.2px;
     }
-    .tag-status { background: rgba(16, 185, 129, 0.12); color: var(--accent); }
+    .tag-status { background: rgba(34, 211, 238, 0.12); color: var(--accent); }
     .tag-priority { background: rgba(245, 158, 11, 0.12); color: var(--amber); }
     .tag-live {
       background: rgba(168, 85, 247, 0.12);
@@ -386,7 +386,7 @@
     .preview-bar-fill {
       height: 100%;
       border-radius: 3px;
-      background: linear-gradient(90deg, var(--accent), #34d399);
+      background: linear-gradient(90deg, #1D4ED8, #22D3EE);
       animation: progress-fill 2s ease-out 0.5s both;
     }
     .preview-activity-header {
@@ -420,7 +420,7 @@
       font-family: 'SF Mono', Menlo, monospace;
       font-size: 11px;
       color: var(--accent);
-      background: rgba(16, 185, 129, 0.08);
+      background: rgba(34, 211, 238, 0.08);
       padding: 1px 6px;
       border-radius: 4px;
       margin-right: 4px;
@@ -493,8 +493,8 @@
       justify-content: center;
       margin-bottom: 20px;
     }
-    .fi-green { background: rgba(16, 185, 129, 0.1); }
-    .fi-green svg { color: var(--accent); }
+    .fi-cyan { background: rgba(34, 211, 238, 0.1); }
+    .fi-cyan svg { color: var(--accent); }
     .fi-blue { background: rgba(59, 130, 246, 0.1); }
     .fi-blue svg { color: var(--blue); }
     .fi-amber { background: rgba(245, 158, 11, 0.1); }
@@ -552,9 +552,9 @@
       z-index: 1;
     }
     .step:nth-child(1) .step-num {
-      background: rgba(16, 185, 129, 0.1);
+      background: rgba(34, 211, 238, 0.1);
       color: var(--accent);
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(34, 211, 238, 0.2);
     }
     .step:nth-child(2) .step-num {
       background: rgba(59, 130, 246, 0.1);
@@ -594,7 +594,7 @@
       transform: translateX(-50%);
       width: 600px;
       height: 400px;
-      background: radial-gradient(ellipse, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(34, 211, 238, 0.06) 0%, transparent 70%);
       pointer-events: none;
     }
     .bottom-cta h2 {
@@ -657,10 +657,7 @@
     <div class="container">
       <a href="/" class="logo">
         <span class="logo-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
-            <rect x="9" y="3" width="6" height="4" rx="1" />
-          </svg>
+          <img src="icon-512.png" alt="Project Tracker" />
         </span>
         Project Tracker
       </a>
@@ -713,7 +710,7 @@
           <div class="preview-sidebar">
             <h3>Projects</h3>
             <div class="preview-project active">
-              <span class="status-dot" style="background:#10b981"></span>
+              <span class="status-dot" style="background:#22d3ee"></span>
               Landing Page
             </div>
             <div class="preview-project">
@@ -764,7 +761,7 @@
       <p class="section-sub">Link a folder. The app does the rest.</p>
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon fi-green">
+          <div class="feature-icon fi-cyan">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3" />
               <line x1="12" y1="1" x2="12" y2="5" /><line x1="12" y1="19" x2="12" y2="23" />
@@ -785,7 +782,7 @@
           <p>Watches for new and modified files in any folder. Code, design assets, documents. Git optional.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon fi-green">
+          <div class="feature-icon fi-cyan">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
